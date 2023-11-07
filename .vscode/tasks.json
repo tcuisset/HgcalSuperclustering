@@ -1,0 +1,46 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build all (scram)",
+            "command": "cmsenv; scram build -j20",
+            "type": "shell",
+            //"args": ["build", "-j20"],
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "presentation": {
+                "reveal": "always"
+            },
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/CMSSW_13_2_5_patch2"
+            }
+        },
+        {
+            "label": "Build current module (scram)",
+            "command": "cmsenv; scram build -j5 `echo ${relativeFileDirname} | cut -d/ -f3-4`", // https://stackoverflow.com/questions/41229950/how-to-get-first-n-parts-of-a-path
+            "type": "shell",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "presentation": {
+                "reveal": "always"
+            },
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/CMSSW_13_2_5_patch2"
+            }
+        },
+        {
+            "label": "Run step3 TICL only",
+            "type": "shell",
+            "command": "cmsRun step3b_TICLonly.py",
+            "problemMatcher": [],
+            "options": {
+                "cwd": "${workspaceFolder}/runs/TICLseparate"
+            },
+            "dependsOn" : ["Build all (scram)"]
+        }
+    ]
+}

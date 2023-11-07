@@ -1,0 +1,27 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/cvmfs/cms.cern.ch/el8_amd64_gcc11/external/boost/1.80.0-5305613b2f750cf1a05dcadf0d672647/include",
+                "/cvmfs/cms.cern.ch/el8_amd64_gcc11/lcg/root/6.26.11-50eed3272fcfa103ebe9cf3182b98eb9/include",
+                "/cvmfs/cms.cern.ch/el8_amd64_gcc11/external/clhep/2.4.6.0-25a101e56144b60e8e6c8533bc6203b4/include",
+                "/cvmfs/cms.cern.ch/el8_amd64_gcc11/external/eigen/82dd3710dac619448f50331c1d6a35da673f764a-f9c27fce684e89466e2ef07869cd264d/include/eigen3",
+                "/cvmfs/cms.cern.ch/el8_amd64_gcc11/external/tensorflow/2.6.4-94ea81ac8dcc00455e8150b7498bee77/include",
+                "/cvmfs/cms.cern.ch/el8_amd64_gcc11/external/protobuf/3.15.1-22ec1dcddbf458d5d16ff948fdc8121d/include",
+                "/cvmfs/cms.cern.ch/el8_amd64_gcc11/external/tbb/v2021.8.0-7e31093a7b4a477d01bc3946dd0bf612/include",
+                "/cvmfs/cms.cern.ch/el8_amd64_gcc11/external/fmt/8.0.1-89199f97a8c166a965017c69137de0d0/include",
+                "/cvmfs/cms.cern.ch/el8_amd64_gcc11/external/hls/2019.08-4428055fbd31b592a2034ea710d783a0/include",
+                "/cvmfs/cms.cern.ch/el8_amd64_gcc11/external/dd4hep/v01-23x-bb01de2ca72c68ae00d8a4dcb2578662/include"
+            ],
+            "defines": [],
+            //"compilerPath": "/cvmfs/cms.cern.ch/el8_amd64_gcc11/external/gcc/11.4.1-30ebdc301ebd200f2ae0e3d880258e65/bin/g++",
+            "compilerPath": "${workspaceFolder}/.vscode/g++-cmsenv.sh",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "linux-gcc-x64"
+        }
+    ],
+    "version": 4
+}

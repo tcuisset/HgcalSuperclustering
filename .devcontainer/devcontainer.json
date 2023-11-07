@@ -1,0 +1,29 @@
+{
+    //"image" : "registry.hub.docker.com/cmssw/el8:x86_64",
+    "build": { "dockerfile": "Dockerfile" },
+    //dnf install python3.11; update-alternatives --set python3 /usr/bin/python3.11;
+    // \nexport PATH=\"/workspaces/repo/CMSSW_13_2_5_patch2/venv/el8_amd64_gcc11/bin/:$PATH\" 
+    // "onCreateCommand": "echo 'source /cvmfs/cms.cern.ch/cmsset_default.sh\n export EDITOR=nano' >> ~/.bashrc",
+    "postStartCommand": "git config --global --add safe.directory ${containerWorkspaceFolder}",
+    //"postCreateCommand": "source /cvmfs/cms.cern.ch/cmsset_default.sh",
+    /*"containerEnv": {
+        "LD_LIBRARY_PATH" : "/workspaces/cmssw/CMSSW_13_2_5_patch2/biglib/el8_amd64_gcc11:/workspaces/cmssw/CMSSW_13_2_5_patch2/lib/el8_amd64_gcc11:/workspaces/cmssw/CMSSW_13_2_5_patch2/external/el8_amd64_gcc11/lib:/cvmfs/cms.cern.ch/el8_amd64_gcc11/cms/cmssw-patch/CMSSW_13_2_5_patch2/biglib/el8_amd64_gcc11:/cvmfs/cms.cern.ch/el8_amd64_gcc11/cms/cmssw-patch/CMSSW_13_2_5_patch2/lib/el8_amd64_gcc11:/cvmfs/cms.cern.ch/el8_amd64_gcc11/cms/cmssw-patch/CMSSW_13_2_5_patch2/external/el8_amd64_gcc11/lib:/cvmfs/cms.cern.ch/el8_amd64_gcc11/cms/cmssw/CMSSW_13_2_5/biglib/el8_amd64_gcc11:/cvmfs/cms.cern.ch/el8_amd64_gcc11/cms/cmssw/CMSSW_13_2_5/lib/el8_amd64_gcc11:${localEnv:LD_LIBRARY_PATH}",
+        //:/cvmfs/cms.cern.ch/el8_amd64_gcc11/external/llvm/16.0.3-30a94a0988f5482a5c382d0ed262f413/lib64:/cvmfs/cms.cern.ch/el8_amd64_gcc11/external/gcc/11.4.1-30ebdc301ebd200f2ae0e3d880258e65/lib64:/cvmfs/cms.cern.ch/el8_amd64_gcc11/external/gcc/11.4.1-30ebdc301ebd200f2ae0e3d880258e65/lib:/cvmfs/cms.cern.ch/el8_amd64_gcc11/external/cuda/11.8.0-9f0af0f4206be7b705fe550319c49a11/lib64/stubs
+        "PATH" : "/cvmfs/cms.cern.ch/share/overrides/bin:/cvmfs/cms.cern.ch/el8_amd64_gcc11/cms/cmssw-patch/CMSSW_13_2_5_patch2/bin/el8_amd64_gcc11:/cvmfs/cms.cern.ch/el8_amd64_gcc11/cms/cmssw-patch/CMSSW_13_2_5_patch2/external/el8_amd64_gcc11/bin:/cvmfs/cms.cern.ch/el8_amd64_gcc11/cms/cmssw/CMSSW_13_2_5/bin/el8_amd64_gcc11:/cvmfs/cms.cern.ch/common:${localEnv:PATH}",
+        "PYTHON3PATH" : "/cvmfs/cms.cern.ch/share/overrides/python:/cvmfs/cms.cern.ch/el8_amd64_gcc11/cms/cmssw-patch/CMSSW_13_2_5_patch2/python:/cvmfs/cms.cern.ch/el8_amd64_gcc11/cms/cmssw-patch/CMSSW_13_2_5_patch2/lib/el8_amd64_gcc11:/cvmfs/cms.cern.ch/el8_amd64_gcc11/cms/coral/CORAL_2_3_21-53e6b2d19aaf60c65ede295e16623af5/el8_amd64_gcc11/python:/cvmfs/cms.cern.ch/el8_amd64_gcc11/cms/coral/CORAL_2_3_21-53e6b2d19aaf60c65ede295e16623af5/el8_amd64_gcc11/lib:/cvmfs/cms.cern.ch/el8_amd64_gcc11/cms/cmssw/CMSSW_13_2_5/lib/el8_amd64_gcc11:/cvmfs/cms.cern.ch/el8_amd64_gcc11/cms/cmssw-patch-tool-conf/CMSSW_13_2_5/lib/python3.9/site-packages"
+    },*/
+    //"runArgs": ["--env-file",".devcontainer/cmsenv.env"],
+    //"runArgs": ["--entrypoint="],
+    //"overrideCommand": true,
+    "mounts": [
+        "source=/cvmfs,target=/cvmfs,type=bind,bind-propagation=shared", //https://cvmfs.readthedocs.io/en/stable/cpt-configure.html#bind-mount-from-the-host
+        "source=/home/cuisset/cms,target=/home/cuisset/cms,type=bind", //needed for cms SITECONFIG
+    ], 
+
+    "customizations": {
+        "vscode": {
+            "extensions": ["ms-vscode.cpptools",  "albertopdrf.root-file-viewer", "ms-python.python", "ms-toolsai.jupyter"]
+        }
+    }
+    
+}
