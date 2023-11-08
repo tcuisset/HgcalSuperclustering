@@ -15,6 +15,7 @@
     //"runArgs": ["--env-file",".devcontainer/cmsenv.env"],
     //"runArgs": ["--entrypoint="],
     //"overrideCommand": true,
+    "runArgs" : ["--dns=127.0.0.53", "--network=host"], // tentative fix for https://github.com/moby/moby/issues/46199 (DNS not updating in container when changing network)
     "mounts": [
         "source=/cvmfs,target=/cvmfs,type=bind,bind-propagation=shared", //https://cvmfs.readthedocs.io/en/stable/cpt-configure.html#bind-mount-from-the-host
         "source=/home/cuisset/cms,target=/home/cuisset/cms,type=bind", //needed for cms SITECONFIG
@@ -22,7 +23,13 @@
 
     "customizations": {
         "vscode": {
-            "extensions": ["ms-vscode.cpptools",  "albertopdrf.root-file-viewer", "ms-python.python", "ms-toolsai.jupyter"]
+            "extensions": [
+				"ms-vscode.cpptools",
+				"albertopdrf.root-file-viewer",
+				"ms-python.python",
+				"ms-toolsai.jupyter",
+				"h5web.vscode-h5web"
+			]
         }
     }
     

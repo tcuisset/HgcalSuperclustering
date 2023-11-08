@@ -5,6 +5,14 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: makeAllDataframe",
+            "type": "python",
+            "request": "launch",
+            "module": "analyzer.driver.makeAllDataframe",
+            "justMyCode": true,
+            "args": ["-i", "runs_results/histo.root", "-o", "runs_results/"]
+        },
+        {
             "name": "Python: Current File in CMSSW",
             "type": "python",
             "request": "launch",
@@ -18,7 +26,9 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/CMSSW_13_2_5_patch2/bin/el8_amd64_gcc11/cmsRun",
-            "args": ["${fileBasename}"],
+            "args": [
+                "${fileBasename}"
+            ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],

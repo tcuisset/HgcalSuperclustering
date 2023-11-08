@@ -3,7 +3,7 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/**",
+                "${workspaceFolder}/CMSSW_13_2_5_patch2/src/**",
                 "/cvmfs/cms.cern.ch/el8_amd64_gcc11/external/boost/1.80.0-5305613b2f750cf1a05dcadf0d672647/include",
                 "/cvmfs/cms.cern.ch/el8_amd64_gcc11/lcg/root/6.26.11-50eed3272fcfa103ebe9cf3182b98eb9/include",
                 "/cvmfs/cms.cern.ch/el8_amd64_gcc11/external/clhep/2.4.6.0-25a101e56144b60e8e6c8533bc6203b4/include",

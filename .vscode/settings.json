@@ -1,7 +1,7 @@
 {
     "python.analysis.include": [
         //"/cvmfs/cms.cern.ch/el8_amd64_gcc11/cms/cmssw-patch/CMSSW_13_2_5_patch2/python/**",
-        "/workspaces/cmssw/CMSSW_13_2_5_patch2/src/**",
+        //"/workspaces/repo/CMSSW_13_2_5_patch2/src/**",
         //"/cvmfs/cms.cern.ch/el8_amd64_gcc11/cms/cmssw-patch/CMSSW_13_2_5_patch2/src/**"
     ],
     "python.analysis.logLevel": "Information",
@@ -94,5 +94,6 @@
     ],
     "python.analysis.extraPaths": [
         "${workspaceFolder}/analyzer"
-    ]
+    ],
+    "git.repositoryScanMaxDepth": 3
 }

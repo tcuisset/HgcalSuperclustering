@@ -9,6 +9,7 @@ RUN echo 'source /cvmfs/cms.cern.ch/cmsset_default.sh' >> ~/.bashrc && \
 RUN wget -nv https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh &&\
     bash Miniforge3-Linux-x86_64.sh -b -p /opt/miniforge3 && \
     /opt/miniforge3/bin/mamba init && \
+    /opt/miniforge3/bin/conda config --set auto_activate_base false && \
     rm -f Miniconda3-latest-Linux-x86_64.sh
 
 
