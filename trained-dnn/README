@@ -1,0 +1,8 @@
+To make CMSSW find the models :
+
+~~~bash
+cd CMSSW_13_2_5_patch2/external/el8_amd64_gcc11
+mkdir -p data/RecoHGCal/TICL/data
+cd data/RecoHGCal/TICL/data
+ln -s ../../../../../../../trained-dnn/current/ tf_models
+~~~

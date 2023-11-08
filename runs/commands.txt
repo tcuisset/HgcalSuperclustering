@@ -1,0 +1,49 @@
+runTheMatrix.py -w upgrade -l 26093 -j 1 -t 20 --nEvents=100 --dryRun
+Preparing to run 26093.0 CloseByParticleGun+2026D101
+
+# in: /workspaces/cmssw/runs/TICLseparate dryRun for 'cd 26093.0_CloseByParticleGun+2026D101
+ cmsDriver.py CloseByParticle_Photon_ERZRanges_cfi  -s GEN,SIM -n 100 --conditions auto:phase2_realistic_T25 --beamspot HGCALCloseBy --datatier GEN-SIM --eventcontent FEVTDEBUG --geometry Extended2026D101 --era Phase2C17I13M9 --relval 9000,100 --fileout file:step1.root  --nThreads 20 > step1_CloseByParticleGun+2026D101.log  2>&1
+ 
+
+# in: /workspaces/cmssw/runs/TICLseparate dryRun for 'cd 26093.0_CloseByParticleGun+2026D101
+ cmsDriver.py step2  -s DIGI:pdigi_valid,L1TrackTrigger,L1,DIGI2RAW,HLT:@relval2026 --conditions auto:phase2_realistic_T25 --datatier GEN-SIM-DIGI-RAW -n 100 --eventcontent FEVTDEBUGHLT --geometry Extended2026D101 --era Phase2C17I13M9 --filein  file:step1.root  --fileout file:step2.root  --nThreads 20 > step2_CloseByParticleGun+2026D101.log  2>&1
+ 
+
+# in: /workspaces/cmssw/runs/TICLseparate dryRun for 'cd 26093.0_CloseByParticleGun+2026D101
+ cmsDriver.py step3  -s RAW2DIGI,RECO,RECOSIM,PAT,VALIDATION:@phase2Validation+@miniAODValidation,DQM:@phase2+@miniAODDQM --conditions auto:phase2_realistic_T25 --datatier GEN-SIM-RECO,MINIAODSIM,DQMIO -n 100 --eventcontent FEVTDEBUGHLT,MINIAODSIM,DQM --geometry Extended2026D101 --era Phase2C17I13M9 --filein  file:step2.root  --fileout file:step3.root  --nThreads 20 > step3_CloseByParticleGun+2026D101.log  2>&1
+ 
+
+# in: /workspaces/cmssw/runs/TICLseparate dryRun for 'cd 26093.0_CloseByParticleGun+2026D101
+ cmsDriver.py step4  -s HARVESTING:@phase2Validation+@phase2+@miniAODValidation+@miniAODDQM --conditions auto:phase2_realistic_T25 --mc  --geometry Extended2026D101 --scenario pp --filetype DQM --era Phase2C17I13M9 -n 100  --filein file:step3_inDQM.root --fileout file:step4.root  > step4_CloseByParticleGun+2026D101.log  2>&1
+ 
+
+# in: /workspaces/cmssw/runs/TICLseparate dryRun for 'cd 26093.0_CloseByParticleGun+2026D101
+ cmsDriver.py step5  -s ALCA:SiPixelCalSingleMuonLoose+SiPixelCalSingleMuonTight+TkAlMuonIsolated+TkAlMinBias+MuAlOverlaps+EcalESAlign+TkAlZMuMu+TkAlDiMuonAndVertex+HcalCalHBHEMuonProducerFilter+TkAlUpsilonMuMu+TkAlJpsiMuMu --conditions auto:phase2_realistic_T25 --datatier ALCARECO -n 100 --eventcontent ALCARECO --geometry Extended2026D101 --filein file:step3.root --era Phase2C17I13M9 --fileout file:step5.root  --nThreads 20 > step5_CloseByParticleGun+2026D101.log  2>&1
+
+
+
+Commands run :
+cmsDriver.py CloseByParticle_Photon_ERZRanges_cfi  -s GEN,SIM -n 100 --conditions auto:phase2_realistic_T25 --beamspot HGCALCloseBy --datatier GEN-SIM --eventcontent FEVTDEBUG --geometry Extended2026D101 --era Phase2C17I13M9 --relval 9000,100 --fileout file:step1.root  --nThreads 20 --no_exec
+cmsDriver.py step2  -s DIGI:pdigi_valid,L1TrackTrigger,L1,DIGI2RAW,HLT:@relval2026 --conditions auto:phase2_realistic_T25 --datatier GEN-SIM-DIGI-RAW -n 100 --eventcontent FEVTDEBUGHLT --geometry Extended2026D101 --era Phase2C17I13M9 --filein  file:step1.root  --fileout file:step2.root  --nThreads 20 --no_exec
+cmsDriver.py step3  -s RAW2DIGI,RECO,RECOSIM,PAT,VALIDATION:@phase2Validation+@miniAODValidation,DQM:@phase2+@miniAODDQM --conditions auto:phase2_realistic_T25 --datatier GEN-SIM-RECO,MINIAODSIM,DQMIO -n 100 --eventcontent FEVTDEBUGHLT,MINIAODSIM,DQM --geometry Extended2026D101 --era Phase2C17I13M9 --filein  file:step2.root  --fileout file:step3.root  --nThreads 20
+cmsDriver.py step4  -s HARVESTING:@phase2Validation+@phase2+@miniAODValidation+@miniAODDQM --conditions auto:phase2_realistic_T25 --mc  --geometry Extended2026D101 --scenario pp --filetype DQM --era Phase2C17I13M9 -n 100  --filein file:step3_inDQM.root --fileout file:step4.root
+
+
+cmsDriver.py step5  -s ALCA:SiPixelCalSingleMuonLoose+SiPixelCalSingleMuonTight+TkAlMuonIsolated+TkAlMinBias+MuAlOverlaps+EcalESAlign+TkAlZMuMu+TkAlDiMuonAndVertex+HcalCalHBHEMuonProducerFilter+TkAlUpsilonMuMu+TkAlJpsiMuMu --conditions auto:phase2_realistic_T25 --datatier ALCARECO -n 100 --eventcontent ALCARECO --geometry Extended2026D101 --filein file:step3.root --era Phase2C17I13M9 --fileout file:step5.root  --nThreads 20
+
+
+
+cmsRun Commands : 
+cmsRun CloseByParticle_Photon_ERZRanges_cfi_GEN_SIM.py
+cmsRun step2
+cmsRun step3
+cmsRun step3b
+cmsRun step4b
+
+####### Commands for Alessandro samples 
+cmsDriver.py step3  -s RAW2DIGI,RECO,RECOSIM,PAT,VALIDATION:@phase2Validation,DQM:@phase2 --conditions auto:phase2_realistic_T25 --datatier GEN-SIM-RECO,DQMIO -n 100 --eventcontent FEVTDEBUGHLT,DQM --geometry Extended2026D101 --era Phase2C17I13M9 --filein  file:step2.root  --fileout file:step3.root  --nThreads 20  --no_exec
+cmsDriver.py step3b  -s RECO,RECOSIM,PAT,VALIDATION:@phase2Validation,DQM:@phase2 --conditions auto:phase2_realistic_T25 --datatier GEN-SIM-RECO,DQMIO -n 100 --eventcontent FEVTDEBUGHLT,DQM --geometry Extended2026D101 --era Phase2C17I13M9 --filein  file:step3.root  --fileout file:step3b.root  --nThreads 20  --no_exec
+
+
+# run from RAW2DIGI to RECO (to then add only TICL validation by hand after)
+cmsDriver.py step3 -s RAW2DIGI,RECO,RECOSIM --conditions auto:phase2_realistic_T25 --datatier GEN-SIM-RECO,DQMIO -n -1 --eventcontent FEVTDEBUGHLT,DQM --geometry Extended2026D101 --era Phase2C17I13M9 --filein file:step2.root --fileout file:step3.root --nThreads 20 --no_exec
