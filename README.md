@@ -15,4 +15,6 @@ git-cms-checkout-topic tcuisset:dnn-supercls
 scram b -j10
 ~~~
 
+For the DNN see in `trained-dnn/README`
+
 Top-level directories named `scratch` and `data*` are ignored by git
