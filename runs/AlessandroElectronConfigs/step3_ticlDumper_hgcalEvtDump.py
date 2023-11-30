@@ -1,6 +1,7 @@
 # Run step 3 from RAW2DIGI, then TICL only 
 # saves TICLDumper and event debug output with only HGCAL related stuff 
 # Not a standalone config file, need to fill in process.source.fileNames in a config file that imports this one
+# Geometry, era, etc was changed to be consistent with Alessandro's electrons : era=Phase2C17I13M9 (identical), globalTag=phase2_realistic_T21, geometry GeometryExtended2026D88
 
 # Auto generated configuration file
 # using: 
@@ -19,7 +20,7 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2026D101Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff') # changed
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')
@@ -103,7 +104,7 @@ process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T25', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', '') # changed T25 -> T21
 
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
