@@ -25,16 +25,17 @@
             "name": "(gdb) Launch cmsRun on current config file",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/CMSSW_13_2_5_patch2/bin/el8_amd64_gcc11/cmsRun",
+            "program": "/cvmfs/cms.cern.ch/el8_amd64_gcc12/cms/cmssw/CMSSW_14_0_0_pre1/bin/el8_amd64_gcc12/cmsRun",
             "args": [
-                "${fileBasename}"
+                "-n", "1",
+                "${file}"
             ],
             "stopAtEntry": false,
-            "cwd": "${fileDirname}",
+            "cwd": "${input:cwdInput}",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
-            "miDebuggerPath": "/workspaces/cmssw/.vscode/gdb-cmsenv.sh",
+            "miDebuggerPath": "/workspaces/repo/.vscode/gdb-cmsenv.sh",
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
@@ -51,5 +52,13 @@
                 }
             ]
         },
+    ],
+    "inputs": [
+        {
+            "id": "cwdInput",
+            "type": "promptString",
+            "default": "/workspaces/repo/runs_results/",
+            "description": "Working directory for cmsRun"
+        }
     ]
 }

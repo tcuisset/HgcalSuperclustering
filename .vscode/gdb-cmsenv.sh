@@ -1,5 +1,6 @@
 #!/bin/bash
-cd /workspaces/cmssw/CMSSW_13_2_5_patch2
+cd /workspaces/repo/CMSSW_14_0_0_pre1
+cmsset
 cmsenv
 cd -
 gdb "$@"

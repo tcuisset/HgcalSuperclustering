@@ -28,7 +28,8 @@
 				"albertopdrf.root-file-viewer",
 				"ms-python.python",
 				"ms-toolsai.jupyter",
-				"h5web.vscode-h5web"
+				"h5web.vscode-h5web",
+                "eamodio.gitlens"
 			]
         }
     }

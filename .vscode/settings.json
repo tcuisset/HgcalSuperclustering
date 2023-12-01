@@ -87,7 +87,10 @@
         "shared_mutex": "cpp",
         "span": "cpp",
         "stop_token": "cpp",
-        "hash_set": "cpp"
+        "hash_set": "cpp",
+        "threadpool": "cpp",
+        "*.inc": "cpp",
+        "valarray": "cpp"
     },
     "python.autoComplete.extraPaths": [
         "${workspaceFolder}/analyzer"
@@ -95,5 +98,5 @@
     "python.analysis.extraPaths": [
         "${workspaceFolder}/analyzer"
     ],
-    "git.repositoryScanMaxDepth": 3
+    "git.repositoryScanMaxDepth": 4
 }
