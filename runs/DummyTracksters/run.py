@@ -12,15 +12,14 @@ process.dummySource = cms.ESSource("EmptyESSource",
 
 process.DummyTracksters = cms.EDProducer("DummyTracksterProducer")
 
-
+# not needed for ONNX models, only for Tensorflow
 #from RecoHGCal.TICL.superclusteringProducer_cfi import superclusteringProducer as _superclusteringProducer
-process.load("RecoHGCal.TICL.superclusteringTf_cff")
-process.superclusteringTf.FileName = "RecoHGCal/TICL/data/tf_models/supercls_v2.pb"
+#process.load("RecoHGCal.TICL.superclusteringTf_cff") 
+#process.superclusteringTf.FileName = "RecoHGCal/TICL/data/tf_models/supercls_v2.pb"
 
 process.superclusteringProducer = cms.EDProducer('SuperclusteringProducer',
-  tfDnnLabel = cms.string('superclusteringTf'),
   dnnVersion = cms.string('alessandro-v2'),
-  trackstersclue3d = cms.InputTag('DummyTracksters'),
+  tracksters = cms.InputTag('DummyTracksters'),
   nnWorkingPoint = cms.double(0.51),
   mightGet = cms.optional.untracked.vstring
 )
