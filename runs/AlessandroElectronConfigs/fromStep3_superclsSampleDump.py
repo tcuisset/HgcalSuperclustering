@@ -36,8 +36,8 @@ process.configurationMetadata = cms.untracked.PSet(
 process.options.numberOfThreads = 20
 process.options.numberOfStreams = 0
 
-
-process.dumper = cms.EDAnalyzer("SuperclusteringSampleDumper",
+# the name of process translates into folder name inside TFileService root file
+process.superclusteringSampleDumper = cms.EDAnalyzer("SuperclusteringSampleDumper",
 )
 
 process.p = cms.EndPath(process.dumper)

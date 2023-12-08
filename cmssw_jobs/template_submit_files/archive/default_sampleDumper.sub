@@ -1,0 +1,24 @@
+# Runs the sample dumper for DNN training. Inputs are step3 files
+# Parameters (need absolute paths)
+RepoPath = /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs
+#InputFolder = /grid_mnt/data_cms_upgrade/tarabini/electrons_pre4_PU_oppositeSign_new/step2
+#OutputFolder = /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/supercls-v1
+LogDir = logs
+# Put -1 for all evts in input file
+MaxEvents = -1
+
+executable = $(RepoPath)/cmssw_jobs/cmsenvStarter.sh
+arguments = "cmsRun -n 1 '$(RepoPath)/cmssw_jobs/cmsRunConfigStarter.py' -- -s $(RepoPath)/runs/AlessandroElectronConfigs/supercls_sampleDump_fromRECO.py -i $(InputFolder)/step3_$(SampleId).root '--output-fileService=$(OutputFolder)/sampleDumper_$(SampleId).root' 'process.maxEvents.input=cms.untracked.int32($(MaxEvents))'"
+environment = "CMSSW_BASE='$(RepoPath)/CMSSW_14_0_0_pre1'"
+universe = vanilla
+output = $(LogDir)/$(SampleId)_sampleDumper.out
+error = $(LogDir)/$(SampleId)_sampleDumper.err
+log = $(LogDir)/$(SampleId)_sampleDumper.log
+
+request_memory = 3000
+
+T3Queue = long
+WNTag = el7
+include : /opt/exp_soft/cms/t3/t3queue |
+
+#queue SampleId in (205)

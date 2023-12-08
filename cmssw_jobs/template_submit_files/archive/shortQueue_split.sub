@@ -1,0 +1,33 @@
+
+# Parameters (need absolute paths)
+RepoPath = /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs
+#InputFolder = /grid_mnt/data_cms_upgrade/tarabini/electrons_pre4_PU_oppositeSign_new/step2
+#OutputFolder = /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/supercls-v1
+LogDir = logs
+# can only be 1 or 8 on LLR T3
+CpuCount = 8
+# SampleId
+# SubSampleId (0 to 9)
+
+MaxEvents = 100
+SkipEvents = $(SubSampleId) * $(MaxEvents)
+
+
+executable = $(RepoPath)/cmssw_jobs/cmsenvStarter.sh
+arguments = "cmsRun -n $(CpuCount) '$(RepoPath)/cmssw_jobs/cmsRunConfigStarter.py' -- -s $(RepoPath)/runs/AlessandroElectronConfigs/step3_ticlDumper_hgcalEvtDump.py \
+    -i $(InputFolder)/step2_$(SampleId).root '--output-fevt=$(OutputFolder)/step3_$(SampleId)_$(SubSampleId).root' '--output-dqm=$(OutputFolder)/step3_inDQM_$(SampleId)_$(SubSampleId).root' '--output-fileService=$(OutputFolder)/dumper_$(SampleId)_$(SubSampleId).root' \
+    --skipEvents=$INT(SkipEvents) --maxEvents=$(MaxEvents)"
+environment = "CMSSW_BASE='$(RepoPath)/CMSSW_14_0_0_pre1'"
+universe = vanilla
+output = $(LogDir)/$(SampleId)_$(SubSampleId).out
+error = $(LogDir)/$(SampleId)_$(SubSampleId).err
+log = $(LogDir)/$(SampleId)_$(SubSampleId).log
+
+request_memory = 10G
+request_cpus = $(CpuCount)
+
+T3Queue = short
+WNTag = el7
+include : /opt/exp_soft/cms/t3/t3queue |
+
+#queue SampleId in (205)

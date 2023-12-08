@@ -26,3 +26,8 @@ from RecoHGCal.TICL.customiseTICLFromReco import *
 process = customiseTICLFromReco(process, pileup=True)
 process = customiseTICLForDumper(process)
 
+#### timing
+process.Timing = cms.Service("Timing",
+  summaryOnly = cms.untracked.bool(False),
+  useJobReport = cms.untracked.bool(True)
+)

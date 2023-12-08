@@ -1,5 +1,6 @@
 # Runs step3 again from step3.root, running only TICL, TICL validation and TICLDumper
-# saves TICLDumper and event debug output with only HGCAL related stuff 
+# saves TICLDumper and event debug output with only HGCAL related stuff
+##### NEED TO CHANGE GEOMETRY 
 
 # Auto generated configuration file
 # using: 
