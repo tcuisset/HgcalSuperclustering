@@ -12,13 +12,14 @@ import pandas as pd
 pd.options.mode.copy_on_write = True
 
 
-from analyzer.tools import DumperReader
+from analyzer.dumperReader.reader import DumperReader
 from analyzer.driver.computations import Computation
+from analyzer.driver.fileTools import DumperInputManager, runComputations
 
 
 parser = argparse.ArgumentParser(description="Reads TICLDumper output and makes histograms/reduced dataframes.")
 parser.add_argument("--input-dir", "-i", dest='input_dir', action="append",
-    help="The path to the directory where all the TICLDumper output data is. Can be a directory (takes all .root files inside), or a file. Can be mentionned multiple times.",
+    help="The path to the directory where all the TICLDumper output data is. Can be a directory (takes all dumper_*.root files inside), or a file. Can be mentionned multiple times.",
 )
 # parser.add_argument("--output-tag", "-t", dest="tag",
 #     help="The tag (version) to use for the output") 
@@ -28,7 +29,7 @@ parser.add_argument("--output-dir", "-o", dest="output_dir",
 # parser.add_argument("--force-output-directory", dest='force_output_directory',
 #     default=None,
 #     help="Complete path to folder where to store histograms  (for testing)")
-parser.add_argument("--max-workers", dest="max_workers", default=10, type=int,
+parser.add_argument("--max-workers", "-n", dest="max_workers", default=10, type=int,
     help="Number of workers to use")
 #parser.add_argument("--save-metadata", dest="save_metadata", action=argparse.BooleanOptionalAction,
 #    default=False, help="Save metadata of histograms (name, label, axes) to a pickle file")
@@ -48,15 +49,7 @@ if args.computation_vars is None:
 #if args.input_dir is None:
 #    args.input_dir=['/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign', '/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-sameSign']
 
-# Listing input
-pathToInputs = []
-for inputParam in args.input_dir:
-    if os.path.isfile(inputParam):
-        pathToInputs.append(inputParam)
-    elif os.path.isdir(inputParam):
-        pathToInputs.extend(glob.glob(os.path.join(inputParam, "*.root")))
-    else:
-        raise ValueError("File path " + inputParam + " is neither a file nor a directory")
+inputManager = DumperInputManager(args.input_dir)
 
 # filling computations from the variables of the module given in parameters
 computations:list[Computation] = []
@@ -70,19 +63,6 @@ for comp_variable_str in args.computation_vars:
         computations.extend(comp_variable)
 
 
-with concurrent.futures.ProcessPoolExecutor(max_workers=min(args.max_workers, len(pathToInputs))) as executor:
-    def map_fcn(pathToInput:str) -> list:
-        reader = DumperReader(pathToInput)
-        return [comp.workOnSample(reader) for comp in computations], reader.nEvents
-
-    map_res = executor.map(map_fcn, pathToInputs)
-
-# map_res is [([comp1Res, comp2Res, ...], nEvts), ...]
-resultsPerFile, nbOfEvents = zip(*map_res)
-# listOfResults is ([comp1Res, comp2Res, ...], ...)
-# Reduce
 with pd.HDFStore(os.path.join(args.output_dir, "store.hdf")) as store:
-    for comp, resultsPerComputation in zip(computations, zip(*resultsPerFile)):
-        # resultsPerComputation is a tuple of ResultToReduce that are to be reduced together
-        comp.reduce(resultsPerComputation, store, nbOfEvents=nbOfEvents)
+    runComputations(computations, inputManager, store=store, max_workers=args.max_workers)
 
