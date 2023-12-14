@@ -45,8 +45,10 @@ process.options.numberOfStreams = 0
 
 
 ##### 
-process.load("RecoHGCal.TICL.superclusteringProducer_cfi")
-process.superclusteringProducer_step = cms.Path(process.superclusteringProducer)
+#process.load("RecoHGCal.TICL.superclusteringProducer_cfi") # does not store superclustering as the correct name
+from RecoHGCal.TICL.superclusteringProducer_cfi import superclusteringProducer as _superclusteringProducer
+process.ticlTrackstersSuperclustering = _superclusteringProducer
+process.superclusteringProducer_step = cms.Path(process.ticlTrackstersSuperclustering)
 
 from RecoHGCal.TICL.ticlDumper_cfi import ticlDumper
 process.ticlDumper = ticlDumper.clone(
@@ -61,6 +63,8 @@ process.ticlDumper = ticlDumper.clone(
         saveAssociations=False,
         saveSuperclustering=True,
         saveSuperclusteringDNNScore=True,
+        superclustering="ticlTrackstersSuperclustering:superclusteredTracksters:RECOsc", # just to make sure it picks up the correct process (normally not needed)
+        superclusteringDNNScore="ticlTrackstersSuperclustering:superclusteringTracksterDNNScore:RECOsc",
     )
 process.ticlDumper_step = cms.EndPath(process.ticlDumper)
 
