@@ -1,4 +1,4 @@
-# Starts from step3 file (FEVTDEBUG), runs superclustering, then TICL dumper (supercls only) and SuperclusteringDNNSampleDumper
+# Starts from step3 file (FEVTDEBUG), runs TICL (incl superclustering), then TICL dumper and SuperclusteringDNNSampleDumper
 
 import FWCore.ParameterSet.Config as cms
 
@@ -21,12 +21,7 @@ process.maxEvents = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:step3.root'),
-    secondaryFileNames = cms.untracked.vstring(),
-    # inputCommands=cms.untracked.vstring(
-    #     # remove old superclustering (before ticlv5) so we can reuse the old samples without redoing RAW2DIGI,RECO
-    #     'keep *',
-    #     'drop ticlTrackstersRefss_ticlTrackstersSuperclustering_superclusteredTracksters_RECO'
-    # )
+    secondaryFileNames = cms.untracked.vstring()
 )
 
 # Output
@@ -51,24 +46,24 @@ process.options.numberOfStreams = 0
 
 ##### 
 #process.load("RecoHGCal.TICL.superclusteringProducer_cfi") # does not store superclustering as the correct name
-from RecoHGCal.TICL.superclustering_cff import ticlTracksterLinksSuperclustering
-process.ticlTracksterLinksSuperclustering = ticlTracksterLinksSuperclustering
-process.ticlTracksterLinksSuperclustering_step = cms.Path(process.ticlTracksterLinksSuperclustering)
+from RecoHGCal.TICL.superclusteringProducer_cfi import superclusteringProducer as _superclusteringProducer
+process.ticlTrackstersSuperclustering = _superclusteringProducer
+process.superclusteringProducer_step = cms.Path(process.ticlTrackstersSuperclustering)
 
 from RecoHGCal.TICL.ticlDumper_cfi import ticlDumper
 process.ticlDumper = ticlDumper.clone(
-        saveLCs=False,
-        saveCLUE3DTracksters=False,
-        saveTrackstersMerged=False,
-        saveSimTrackstersSC=False,
-        saveSimTrackstersCP=False,
-        saveTICLCandidate=False,
-        saveSimTICLCandidate=False,
-        saveTracks=False,
-        saveAssociations=False,
-        saveSuperclustering=True,
+        # saveLCs=False,
+        # saveCLUE3DTracksters=False,
+        # saveTrackstersMerged=False,
+        # saveSimTrackstersSC=False,
+        # saveSimTrackstersCP=False,
+        # saveTICLCandidate=False,
+        # saveSimTICLCandidate=False,
+        # saveTracks=False,
+        # saveAssociations=False,
+        # saveSuperclustering=True,
         #saveSuperclusteringDNNScore=True,
-        superclustering="ticlTracksterLinksSuperclustering::RECOsc", # just to make sure it picks up the correct process (normally not needed)
+        superclustering="ticlTrackstersSuperclustering:superclusteredTracksters:RECOsc", # just to make sure it picks up the correct process (normally not needed)
         #superclusteringDNNScore="ticlTrackstersSuperclustering:superclusteringTracksterDNNScore:RECOsc",
     )
 process.ticlDumper_step = cms.EndPath(process.ticlDumper)

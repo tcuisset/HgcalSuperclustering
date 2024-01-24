@@ -20,8 +20,8 @@ request_memory = 10G
 # can only be 1 or 8 on LLR T3
 request_cpus = 8
 
-T3Queue = short
-WNTag = el7
+T3Queue = $(T3Queue:short)
+WNTag = $(WNTag:el7)
 include : /opt/exp_soft/cms/t3/t3queue |
 
 #queue SampleId in (205)

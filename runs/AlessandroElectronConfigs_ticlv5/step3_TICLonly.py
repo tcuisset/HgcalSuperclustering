@@ -214,3 +214,9 @@ process = customiseLogErrorHarvesterUsingOutputCommands(process)
 from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete
 process = customiseEarlyDelete(process)
 # End adding early deletion
+
+
+# process.Timing = cms.Service("Timing",
+#   summaryOnly = cms.untracked.bool(False),
+#   useJobReport = cms.untracked.bool(True)
+# )

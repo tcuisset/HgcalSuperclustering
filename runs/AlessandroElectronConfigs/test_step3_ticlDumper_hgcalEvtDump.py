@@ -7,9 +7,5 @@ import FWCore.ParameterSet.Config as cms
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 from step3_ticlDumper_hgcalEvtDump import process
 
-process.source.fileNames = cms.untracked.vstring('file:../../data_alessandro/electrons_pre4_PU/step2_1.root')
-process.maxEvents.input = cms.untracked.int32(-1)
-
-# Debug on (needs file compiled with define EDM_ML_DEBUG as well)
-#process.MessageLogger.cerr.threshold = "DEBUG"
-#process.MessageLogger.debugModules = ["ticlTrackstersSuperclustering"]
+process.source.fileNames = cms.untracked.vstring('file:/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign/step2_201.root')
+process.maxEvents.input = cms.untracked.int32(1)

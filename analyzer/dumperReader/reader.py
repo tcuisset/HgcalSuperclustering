@@ -78,20 +78,23 @@ class DumperReader:
     
     @cached_property
     def superclusters(self) -> ak.Array:
-        """ Gets the supercluster trackster ids
+        """ Gets the supercluster trackster ids (since ticlv5 this actually includes also tracksters in one-trackster superclusters)
         type: nevts * var (superclsCount) * var (trackstersInSupercls) * uint64 (trackster id)
         """
-        return self.fileDir["superclustering/superclusteredTracksters"].array()
+        return self.fileDir["superclustering/linkedResultTracksters"].array()
     
     @cached_property
     def superclusters_all(self) -> ak.Array:
-        """ Same as superclusters but tracksters not in a supercluster are included in a one-trackster supercluster each
+        """ Supercluster tracksters ids. Tracksters not in a supercluster are included in a one-trackster supercluster each
+        Since ticlv5 this is actually identical to superclusters
         """
-        return self.fileDir["superclustering/superclusteredTrackstersAll"].array()
+        #return self.fileDir["superclustering/superclusteredTrackstersAll"].array()
+        return self.fileDir["superclustering/linkedResultTracksters"].array()
 
     @cached_property
     def superclusteringDnnScore(self) -> ak.Array:
-        return self.fileDir["superclustering/superclusteringDNNScore"].array()
+        ar =  self.fileDir["superclustering/superclusteringDNNScore"].array()
+        return ak.zip({"ts_seed":ar["superclusteringDNNScore._0"], "ts_cand":ar["superclusteringDNNScore._1"], "dnnScore":ak.values_astype(ar["superclusteringDNNScore._2"], np.single)/65535.}, with_name="dnnInferencePair")
 
     @cached_property
     def associations(self) -> ak.Array:

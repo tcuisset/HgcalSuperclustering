@@ -48,7 +48,8 @@ class SingleInputReader:
     def addFile(self, path:Path, dumperTypes:list[DumperType]) -> None:
         for dumperType in dumperTypes:
             if dumperType in self._paths:
-                raise RuntimeError(f"Duplicate {dumperType} in {self._paths[dumperType]} and {path}")
+                warnings.warn(f"Duplicate {dumperType} in {self._paths[dumperType]} and {path}")
+                #raise RuntimeError(f"Duplicate {dumperType} in {self._paths[dumperType]} and {path}")
             self._paths[dumperType] = path
 
     def _openFile(self, dumperType:DumperType):
