@@ -1,0 +1,23 @@
+
+# Parameters (need absolute paths)
+ConfigPath = /home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/diffEgamma/27034.0_TTbar_14TeV+2026D103PU
+Version = v1-0cd616
+
+executable = $(ConfigPath)/condor_toStep2.sh
+transfer_input_files = $(ConfigPath)/TTbar_14TeV_TuneCP5_cfi_GEN_SIM.py, $(ConfigPath)/step2_DIGI_L1TrackTrigger_L1_DIGI2RAW_HLT_PU.py
+environment = "CMSSW_BASE='$(RepoPath)/CMSSW_14_0_0_pre0' INDEX=$(SampleId) VERSION=$(Version)"
+universe = vanilla
+output = $(SampleId).out
+error = $(SampleId).err
+log = $(SampleId).log
+when_to_transfer_output = ON_EXIT_OR_EVICT
+
+request_memory = 10G
+# can only be 1 or 8 on LLR T3
+request_cpus = 8
+
+T3Queue = $(T3Queue:short)
+WNTag = $(WNTag:el7)
+include : /opt/exp_soft/cms/t3/t3queue |
+
+queue SampleId from seq 1 2 |

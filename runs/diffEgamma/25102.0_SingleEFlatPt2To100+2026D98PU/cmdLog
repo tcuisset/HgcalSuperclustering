@@ -1,0 +1,16 @@
+
+# in: /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/diffEgamma going to execute cd 25102.0_SingleEFlatPt2To100+2026D98PU
+ cmsDriver.py SingleElectronFlatPt2To100_cfi  -s GEN,SIM -n 1000 --conditions auto:phase2_realistic_T25 --beamspot HLLHC --datatier GEN-SIM --eventcontent FEVTDEBUG --geometry Extended2026D98 --era Phase2C17I13M9 --relval 9000,100 --no_exec --fileout file:step1.root  --nThreads 8 > step1_SingleEFlatPt2To100+2026D98PU.log  2>&1
+ 
+
+# in: /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/diffEgamma going to execute cd 25102.0_SingleEFlatPt2To100+2026D98PU
+ cmsDriver.py step2  -s DIGI:pdigi_valid,L1TrackTrigger,L1,DIGI2RAW,HLT:@relval2026 --conditions auto:phase2_realistic_T25 --datatier GEN-SIM-DIGI-RAW -n 1000 --eventcontent FEVTDEBUGHLT --geometry Extended2026D98 --era Phase2C17I13M9 --pileup AVE_200_BX_25ns --pileup_input das:/RelValMinBias_14TeV/CMSSW_13_2_0_pre1-131X_mcRun4_realistic_v5_2026D98noPU-v1/GEN-SIM --no_exec --filein  file:step1.root  --fileout file:step2.root  --nThreads 8 > step2_SingleEFlatPt2To100+2026D98PU.log  2>&1
+ 
+
+# in: /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/diffEgamma going to execute cd 25102.0_SingleEFlatPt2To100+2026D98PU
+ cmsDriver.py step3  -s RAW2DIGI,RECO,RECOSIM,PAT,VALIDATION:@phase2Validation+@miniAODValidation,DQM:@phase2+@miniAODDQM --conditions auto:phase2_realistic_T25 --datatier GEN-SIM-RECO,MINIAODSIM,DQMIO -n 1000 --eventcontent FEVTDEBUGHLT,MINIAODSIM,DQM --geometry Extended2026D98 --era Phase2C17I13M9 --pileup AVE_200_BX_25ns --pileup_input das:/RelValMinBias_14TeV/CMSSW_13_2_0_pre1-131X_mcRun4_realistic_v5_2026D98noPU-v1/GEN-SIM --no_exec --filein  file:step2.root  --fileout file:step3.root  --nThreads 8 > step3_SingleEFlatPt2To100+2026D98PU.log  2>&1
+ 
+
+# in: /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/diffEgamma going to execute cd 25102.0_SingleEFlatPt2To100+2026D98PU
+ cmsDriver.py step4  -s HARVESTING:@phase2Validation+@phase2+@miniAODValidation+@miniAODDQM --conditions auto:phase2_realistic_T25 --mc  --geometry Extended2026D98 --scenario pp --filetype DQM --era Phase2C17I13M9 -n 1000 --pileup AVE_200_BX_25ns --pileup_input das:/RelValMinBias_14TeV/CMSSW_13_2_0_pre1-131X_mcRun4_realistic_v5_2026D98noPU-v1/GEN-SIM --no_exec --filein file:step3_inDQM.root --fileout file:step4.root  > step4_SingleEFlatPt2To100+2026D98PU.log  2>&1
+ 
