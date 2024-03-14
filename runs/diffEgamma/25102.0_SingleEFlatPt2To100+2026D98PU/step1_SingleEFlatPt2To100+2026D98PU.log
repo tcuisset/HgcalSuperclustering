@@ -1,8 +1,0 @@
-GEN,SIM,ENDJOB
-We have determined that this is simulation (if not, rerun cmsDriver.py with --data)
-Step: GEN Spec: 
-Loading generator fragment from Configuration.Generator.SingleElectronFlatPt2To100_cfi
-Setting numberOfConcurrentLuminosityBlocks=1 because of generator Pythia8PtGun
-Step: SIM Spec: 
-Step: ENDJOB Spec: 
-Config file SingleElectronFlatPt2To100_cfi_GEN_SIM.py created

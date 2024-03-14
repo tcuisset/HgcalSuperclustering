@@ -16,4 +16,4 @@ cmsRun /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/diffEg
 cmsRun /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/diffEgamma/27034.0_TTbar_14TeV+2026D103PU/step2_DIGI_L1TrackTrigger_L1_DIGI2RAW_HLT_PU.py
 
 mkdir -p /grid_mnt/data_cms_upgrade/cuisset/supercls/diffEgamma/$VERSION
-mv step2.root /grid_mnt/data_cms_upgrade/cuisset/supercls/diffEgamma/$VERSION/step3_$INDEX.root
+mv step2.root /grid_mnt/data_cms_upgrade/cuisset/supercls/diffEgamma/$VERSION/step2_$INDEX.root

@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: step3 -s RAW2DIGI,RECO,RECOSIM,PAT,VALIDATION:@phase2Validation+@miniAODValidation,DQM:@phase2+@miniAODDQM --conditions auto:phase2_realistic_T25 --datatier GEN-SIM-RECO,MINIAODSIM,DQMIO -n 1000 --eventcontent FEVTDEBUGHLT,MINIAODSIM,DQM --geometry Extended2026D98 --era Phase2C17I13M9 --pileup AVE_200_BX_25ns --pileup_input das:/RelValMinBias_14TeV/CMSSW_13_2_0_pre1-131X_mcRun4_realistic_v5_2026D98noPU-v1/GEN-SIM --no_exec --filein file:step2.root --fileout file:step3.root --nThreads 8
+# with command line options: step3 -s RAW2DIGI,RECO,RECOSIM,PAT,VALIDATION:@phase2Validation+@miniAODValidation,DQM:@phase2+@miniAODDQM --conditions auto:phase2_realistic_T25 --datatier GEN-SIM-RECO,DQMIO -n -1 --eventcontent FEVTDEBUGHLT,DQM --geometry Extended2026D98 --era Phase2C17I13M9 --filein file:step2.root --fileout file:step3.root --nThreads 20 --no_exec --python_filename step3.py
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
@@ -14,7 +14,7 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
-process.load('SimGeneral.MixingModule.mix_POISSON_average_cfi')
+process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.Geometry.GeometryExtended2026D98Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
@@ -72,7 +72,7 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    annotation = cms.untracked.string('step3 nevts:1000'),
+    annotation = cms.untracked.string('step3 nevts:-1'),
     name = cms.untracked.string('Applications'),
     version = cms.untracked.string('$Revision: 1.19 $')
 )
@@ -89,76 +89,6 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0)
 )
 
-process.MINIAODSIMoutput = cms.OutputModule("PoolOutputModule",
-    compressionAlgorithm = cms.untracked.string('LZMA'),
-    compressionLevel = cms.untracked.int32(4),
-    dataset = cms.untracked.PSet(
-        dataTier = cms.untracked.string('MINIAODSIM'),
-        filterName = cms.untracked.string('')
-    ),
-    dropMetaData = cms.untracked.string('ALL'),
-    eventAutoFlushCompressedSize = cms.untracked.int32(-900),
-    fastCloning = cms.untracked.bool(False),
-    fileName = cms.untracked.string('file:step3_inMINIAODSIM.root'),
-    outputCommands = process.MINIAODSIMEventContent.outputCommands,
-    overrideBranchesSplitLevel = cms.untracked.VPSet(
-        cms.untracked.PSet(
-            branch = cms.untracked.string('patPackedCandidates_packedPFCandidates__*'),
-            splitLevel = cms.untracked.int32(99)
-        ),
-        cms.untracked.PSet(
-            branch = cms.untracked.string('recoGenParticles_prunedGenParticles__*'),
-            splitLevel = cms.untracked.int32(99)
-        ),
-        cms.untracked.PSet(
-            branch = cms.untracked.string('patTriggerObjectStandAlones_slimmedPatTrigger__*'),
-            splitLevel = cms.untracked.int32(99)
-        ),
-        cms.untracked.PSet(
-            branch = cms.untracked.string('patPackedGenParticles_packedGenParticles__*'),
-            splitLevel = cms.untracked.int32(99)
-        ),
-        cms.untracked.PSet(
-            branch = cms.untracked.string('patJets_slimmedJets__*'),
-            splitLevel = cms.untracked.int32(99)
-        ),
-        cms.untracked.PSet(
-            branch = cms.untracked.string('recoVertexs_offlineSlimmedPrimaryVertices__*'),
-            splitLevel = cms.untracked.int32(99)
-        ),
-        cms.untracked.PSet(
-            branch = cms.untracked.string('recoVertexs_offlineSlimmedPrimaryVerticesWithBS__*'),
-            splitLevel = cms.untracked.int32(99)
-        ),
-        cms.untracked.PSet(
-            branch = cms.untracked.string('recoCaloClusters_reducedEgamma_reducedESClusters_*'),
-            splitLevel = cms.untracked.int32(99)
-        ),
-        cms.untracked.PSet(
-            branch = cms.untracked.string('EcalRecHitsSorted_reducedEgamma_reducedEBRecHits_*'),
-            splitLevel = cms.untracked.int32(99)
-        ),
-        cms.untracked.PSet(
-            branch = cms.untracked.string('EcalRecHitsSorted_reducedEgamma_reducedEERecHits_*'),
-            splitLevel = cms.untracked.int32(99)
-        ),
-        cms.untracked.PSet(
-            branch = cms.untracked.string('recoGenJets_slimmedGenJets__*'),
-            splitLevel = cms.untracked.int32(99)
-        ),
-        cms.untracked.PSet(
-            branch = cms.untracked.string('patJets_slimmedJetsPuppi__*'),
-            splitLevel = cms.untracked.int32(99)
-        ),
-        cms.untracked.PSet(
-            branch = cms.untracked.string('EcalRecHitsSorted_reducedEgamma_reducedESRecHits_*'),
-            splitLevel = cms.untracked.int32(99)
-        )
-    ),
-    overrideInputFileSplitLevels = cms.untracked.bool(True),
-    splitLevel = cms.untracked.int32(0)
-)
-
 process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
     dataset = cms.untracked.PSet(
         dataTier = cms.untracked.string('DQMIO'),
@@ -172,11 +102,6 @@ process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
 # Additional output definition
 
 # Other statements
-process.mix.input.nbPileupEvents.averageNumber = cms.double(200.000000)
-process.mix.bunchspace = cms.int32(25)
-process.mix.minBunch = cms.int32(-3)
-process.mix.maxBunch = cms.int32(3)
-process.mix.input.fileNames = cms.untracked.vstring(['/store/relval/CMSSW_13_2_0_pre1/RelValMinBias_14TeV/GEN-SIM/131X_mcRun4_realistic_v5_2026D98noPU-v1/2590000/019a855c-d70e-42f6-b953-550e83ded2c9.root', '/store/relval/CMSSW_13_2_0_pre1/RelValMinBias_14TeV/GEN-SIM/131X_mcRun4_realistic_v5_2026D98noPU-v1/2590000/1e6ae6fd-8ac7-4eca-b727-3252ae4ff52f.root', '/store/relval/CMSSW_13_2_0_pre1/RelValMinBias_14TeV/GEN-SIM/131X_mcRun4_realistic_v5_2026D98noPU-v1/2590000/313dfade-529e-4ae1-9f42-4813b8c83862.root', '/store/relval/CMSSW_13_2_0_pre1/RelValMinBias_14TeV/GEN-SIM/131X_mcRun4_realistic_v5_2026D98noPU-v1/2590000/7d4ca041-1a5d-4580-b5fd-fedeb7c61e88.root', '/store/relval/CMSSW_13_2_0_pre1/RelValMinBias_14TeV/GEN-SIM/131X_mcRun4_realistic_v5_2026D98noPU-v1/2590000/c04e329b-d890-4f57-8aeb-f9a671ae0312.root', '/store/relval/CMSSW_13_2_0_pre1/RelValMinBias_14TeV/GEN-SIM/131X_mcRun4_realistic_v5_2026D98noPU-v1/2590000/d1e561ab-33b8-48d6-b721-f1651d821732.root', '/store/relval/CMSSW_13_2_0_pre1/RelValMinBias_14TeV/GEN-SIM/131X_mcRun4_realistic_v5_2026D98noPU-v1/2590000/d83dc109-bd09-4049-a9ac-49c2f2d922b7.root', '/store/relval/CMSSW_13_2_0_pre1/RelValMinBias_14TeV/GEN-SIM/131X_mcRun4_realistic_v5_2026D98noPU-v1/2590000/f20bedd8-3db8-4d04-a2ab-0360e175f3ad.root', '/store/relval/CMSSW_13_2_0_pre1/RelValMinBias_14TeV/GEN-SIM/131X_mcRun4_realistic_v5_2026D98noPU-v1/2590000/f2ac7802-1364-45b1-b21d-f5f32f3bd20d.root'])
 process.mix.playback = True
 process.mix.digitizers = cms.PSet()
 for a in process.aliases: delattr(process, a)
@@ -257,17 +182,16 @@ process.dqmoffline_10_step = cms.EndPath(process.DQMOfflineMiniAOD)
 process.dqmofflineOnPAT_step = cms.EndPath(process.PostDQMOffline)
 process.dqmofflineOnPAT_1_step = cms.EndPath(process.PostDQMOfflineMiniAOD)
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
-process.MINIAODSIMoutput_step = cms.EndPath(process.MINIAODSIMoutput)
 process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.raw2digi_step,process.reconstruction_step,process.recosim_step,process.Flag_HBHENoiseFilter,process.Flag_HBHENoiseIsoFilter,process.Flag_CSCTightHaloFilter,process.Flag_CSCTightHaloTrkMuUnvetoFilter,process.Flag_CSCTightHalo2015Filter,process.Flag_globalTightHalo2016Filter,process.Flag_globalSuperTightHalo2016Filter,process.Flag_HcalStripHaloFilter,process.Flag_hcalLaserEventFilter,process.Flag_EcalDeadCellTriggerPrimitiveFilter,process.Flag_EcalDeadCellBoundaryEnergyFilter,process.Flag_ecalBadCalibFilter,process.Flag_goodVertices,process.Flag_eeBadScFilter,process.Flag_ecalLaserCorrFilter,process.Flag_trkPOGFilters,process.Flag_chargedHadronTrackResolutionFilter,process.Flag_muonBadTrackFilter,process.Flag_BadChargedCandidateFilter,process.Flag_BadPFMuonFilter,process.Flag_BadPFMuonDzFilter,process.Flag_hfNoisyHitsFilter,process.Flag_BadChargedCandidateSummer16Filter,process.Flag_BadPFMuonSummer16Filter,process.Flag_trkPOG_manystripclus53X,process.Flag_trkPOG_toomanystripclus53X,process.Flag_trkPOG_logErrorTooManyClusters,process.Flag_METFilters,process.prevalidation_step,process.prevalidation_step1,process.prevalidation_step2,process.prevalidation_step3,process.prevalidation_step4,process.prevalidation_step5,process.prevalidation_step6,process.prevalidation_step7,process.prevalidation_step8,process.prevalidation_step9,process.validation_step,process.validation_step1,process.validation_step2,process.validation_step3,process.validation_step4,process.validation_step5,process.validation_step6,process.validation_step7,process.validation_step8,process.validation_step9,process.validation_step10,process.validation_step11,process.validation_step12,process.validation_step13,process.validation_step14,process.validation_step15,process.dqmoffline_step,process.dqmoffline_1_step,process.dqmoffline_2_step,process.dqmoffline_3_step,process.dqmoffline_4_step,process.dqmoffline_5_step,process.dqmoffline_6_step,process.dqmoffline_7_step,process.dqmoffline_8_step,process.dqmoffline_9_step,process.dqmoffline_10_step,process.dqmofflineOnPAT_step,process.dqmofflineOnPAT_1_step,process.FEVTDEBUGHLToutput_step,process.MINIAODSIMoutput_step,process.DQMoutput_step)
+process.schedule = cms.Schedule(process.raw2digi_step,process.reconstruction_step,process.recosim_step,process.Flag_HBHENoiseFilter,process.Flag_HBHENoiseIsoFilter,process.Flag_CSCTightHaloFilter,process.Flag_CSCTightHaloTrkMuUnvetoFilter,process.Flag_CSCTightHalo2015Filter,process.Flag_globalTightHalo2016Filter,process.Flag_globalSuperTightHalo2016Filter,process.Flag_HcalStripHaloFilter,process.Flag_hcalLaserEventFilter,process.Flag_EcalDeadCellTriggerPrimitiveFilter,process.Flag_EcalDeadCellBoundaryEnergyFilter,process.Flag_ecalBadCalibFilter,process.Flag_goodVertices,process.Flag_eeBadScFilter,process.Flag_ecalLaserCorrFilter,process.Flag_trkPOGFilters,process.Flag_chargedHadronTrackResolutionFilter,process.Flag_muonBadTrackFilter,process.Flag_BadChargedCandidateFilter,process.Flag_BadPFMuonFilter,process.Flag_BadPFMuonDzFilter,process.Flag_hfNoisyHitsFilter,process.Flag_BadChargedCandidateSummer16Filter,process.Flag_BadPFMuonSummer16Filter,process.Flag_trkPOG_manystripclus53X,process.Flag_trkPOG_toomanystripclus53X,process.Flag_trkPOG_logErrorTooManyClusters,process.Flag_METFilters,process.prevalidation_step,process.prevalidation_step1,process.prevalidation_step2,process.prevalidation_step3,process.prevalidation_step4,process.prevalidation_step5,process.prevalidation_step6,process.prevalidation_step7,process.prevalidation_step8,process.prevalidation_step9,process.validation_step,process.validation_step1,process.validation_step2,process.validation_step3,process.validation_step4,process.validation_step5,process.validation_step6,process.validation_step7,process.validation_step8,process.validation_step9,process.validation_step10,process.validation_step11,process.validation_step12,process.validation_step13,process.validation_step14,process.validation_step15,process.dqmoffline_step,process.dqmoffline_1_step,process.dqmoffline_2_step,process.dqmoffline_3_step,process.dqmoffline_4_step,process.dqmoffline_5_step,process.dqmoffline_6_step,process.dqmoffline_7_step,process.dqmoffline_8_step,process.dqmoffline_9_step,process.dqmoffline_10_step,process.dqmofflineOnPAT_step,process.dqmofflineOnPAT_1_step,process.FEVTDEBUGHLToutput_step,process.DQMoutput_step)
 process.schedule.associate(process.patTask)
 from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
 associatePatAlgosToolsTask(process)
 
 #Setup FWK for multithreaded
-process.options.numberOfThreads = 8
+process.options.numberOfThreads = 20
 process.options.numberOfStreams = 0
 
 # customisation of the process.

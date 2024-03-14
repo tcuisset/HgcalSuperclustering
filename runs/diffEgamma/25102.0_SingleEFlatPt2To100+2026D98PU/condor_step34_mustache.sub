@@ -1,15 +1,15 @@
 
 # Parameters (need absolute paths)
 ConfigPath = /home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/diffEgamma/25102.0_SingleEFlatPt2To100+2026D98PU
-Version = v2-5362bd-dnn
+Version = v2-5362bd-mustache
 
-executable = $(ConfigPath)/condor_step34.sh
+executable = $(ConfigPath)/condor_step34_mustache.sh
 transfer_input_files = $(ConfigPath)/step3_RAW2DIGI_RECO_RECOSIM_PAT_VALIDATION_DQM_PU.py, $(ConfigPath)/step4_HARVESTING_PU.py
 environment = "INDEX=$(SampleId) VERSION=$(Version)"
 universe = vanilla
-output = logs-dnn/step34_$(SampleId).out
-error = logs-dnn/step34_$(SampleId).err
-log = logs-dnn/step34_$(SampleId).log
+output = logs-mustache/step34_$(SampleId).out
+error = logs-mustache/step34_$(SampleId).err
+log = logs-mustache/step34_$(SampleId).log
 transfer_output_files = ""
 
 request_memory = 25G

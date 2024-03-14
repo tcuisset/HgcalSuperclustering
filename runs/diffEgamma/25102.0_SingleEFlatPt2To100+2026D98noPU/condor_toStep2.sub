@@ -1,15 +1,15 @@
 
 # Parameters (need absolute paths)
-ConfigPath = /home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/diffEgamma/25102.0_SingleEFlatPt2To100+2026D98PU
+ConfigPath = /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/diffEgamma/25102.0_SingleEFlatPt2To100+2026D98noPU
 Version = v1-0cd616
 
 executable = $(ConfigPath)/condor_toStep2.sh
-transfer_input_files = $(ConfigPath)/SingleElectronFlatPt2To100_cfi_GEN_SIM.py, $(ConfigPath)/step2_DIGI_L1TrackTrigger_L1_DIGI2RAW_HLT_PU.py
+transfer_input_files = $(ConfigPath)/SingleElectronFlatPt2To100_cfi_GEN_SIM.py, $(ConfigPath)/step2.py
 environment = "INDEX=$(SampleId) VERSION=$(Version)"
 universe = vanilla
-output = logs-step2/$(SampleId).out
-error = logs-step2/$(SampleId).err
-log = logs-step2/$(SampleId).log
+output = log-step2/$(SampleId).out
+error = log-step2/$(SampleId).err
+log = log-step2/$(SampleId).log
 transfer_output_files = ""
 
 request_memory = 20G

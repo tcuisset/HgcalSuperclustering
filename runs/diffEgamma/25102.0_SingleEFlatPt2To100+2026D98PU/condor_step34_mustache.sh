@@ -36,7 +36,7 @@ process.hgcalTiclPFValidation.remove(process.ticlPFValidation)
 process.hgcalValidation.remove(process.hgcalPFJetValidation)
 EOF
 
-sed -i '/# Schedule definition/a from RecoHGCal.TICL.customiseForTICLv5_cff import customiseForTICLv5; process = customiseForTICLv5(process, True, enableSuperclusteringDNN=True)' step3_RAW2DIGI_RECO_RECOSIM_PAT_VALIDATION_DQM_PU.py
+sed -i '/# Schedule definition/a from RecoHGCal.TICL.customiseForTICLv5_cff import customiseForTICLv5; process = customiseForTICLv5(process, True, enableSuperclusteringDNN=False)' step3_RAW2DIGI_RECO_RECOSIM_PAT_VALIDATION_DQM_PU.py
 cmsRun step3_RAW2DIGI_RECO_RECOSIM_PAT_VALIDATION_DQM_PU.py
 
 cmsRun step4_HARVESTING_PU.py

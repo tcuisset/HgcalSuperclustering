@@ -21,7 +21,7 @@ from IOMC.RandomEngine.RandomServiceHelper import RandomNumberServiceHelper
 randSvc = RandomNumberServiceHelper(process.RandomNumberGeneratorService)
 randSvc.populate()
 EOF
-cmsRun step2_DIGI_L1TrackTrigger_L1_DIGI2RAW_HLT_PU.py
+cmsRun step2.py
 
-mkdir -p /grid_mnt/data_cms_upgrade/cuisset/supercls/diffEgamma/25102_SingleE_D98PU
-mv step2.root /grid_mnt/data_cms_upgrade/cuisset/supercls/diffEgamma/25102_SingleE_D98PU/step2_$INDEX.root
+mkdir -p /grid_mnt/data_cms_upgrade/cuisset/supercls/diffEgamma/25102_SingleE_D98noPU
+mv step2.root /grid_mnt/data_cms_upgrade/cuisset/supercls/diffEgamma/25102_SingleE_D98noPU/step2_$INDEX.root

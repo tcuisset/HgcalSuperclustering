@@ -28,6 +28,11 @@ process.FEVTDEBUGHLToutput.outputCommands.extend([
     "drop EBDigiCollection_simEcalUnsuppressedDigis__HLT",
     "drop recoCaloClusters_hgcalMergeLayerClusters__HLT"
     ])
+
+# remove hgcal validator
+process.hgcalValidatorSequence.remove(process.hgcalValidatorv5)
+process.hgcalTiclPFValidation.remove(process.ticlPFValidation)
+process.hgcalValidation.remove(process.hgcalPFJetValidation)
 EOF
 
 sed -i '/# Schedule definition/a from RecoHGCal.TICL.customiseForTICLv5_cff import customiseForTICLv5; process = customiseForTICLv5(process, True)' step3_RAW2DIGI_RECO_RECOSIM_PAT_VALIDATION_DQM_PU.py
