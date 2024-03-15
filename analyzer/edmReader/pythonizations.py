@@ -38,6 +38,8 @@ def pythonize_edm(klass, name):
             except:
                 return f"{klass.__cpp_name__}(invalid)"
         klass.__repr__ = repr_ptr
+    elif name == "EventID":
+        klass.__repr__ = repr_helper("run", "luminosityBlock", "event")
 cppyy.py.add_pythonization(pythonize_edm, 'edm')
 
 def pythonize_ticl(klass, name):
@@ -89,4 +91,6 @@ cppyy.py.add_pythonization(pythonize_reco, 'reco')
 def pythonize_global(klass, name):
     if name == "DetId":
         klass.__repr__ = lambda self: f"{self.__class__.__cpp_name__}(det={enum_to_string(klass.Detector, self.det())},subdetId={self.subdetId()})"
+    elif name == "CaloParticle":
+        klass.__repr__ = repr_helper("pdgId", "energy")
 cppyy.py.add_pythonization(pythonize_global, '')

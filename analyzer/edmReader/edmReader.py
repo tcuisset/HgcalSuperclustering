@@ -28,6 +28,9 @@ class EdmReader(Events):
     def genParticles(self):
         return self.get("vector<reco::GenParticle>", "genParticles")
     @property
+    def caloParticles(self):
+        return self.get("vector<CaloParticle>", "mix", "MergedCaloTruth")
+    @property
     def electronSeeds(self):
         return self.get("reco::ElectronSeedCollection", "ecalDrivenElectronSeeds")
     @property
@@ -68,4 +71,25 @@ class EdmReader(Events):
                 if all((pfElement.clusterRef().layer() in [cppyy.gbl.PFLayer.ECAL_BARREL, cppyy.gbl.PFLayer.HCAL_BARREL1, cppyy.gbl.PFLayer.HCAL_BARREL2, cppyy.gbl.PFLayer.HF_EM, cppyy.gbl.PFLayer.HF_HAD] for pfElement in pfBlock.elements())):
                     continue
             print(pfBlock)
-            
+
+
+class MultiEdmReader:
+    """ Reads several edm files in parallel for comparison, matching event/run numbers """
+
+    def __init__(self, *paths) -> None:
+        self.readers = [EdmReader(path) for path in paths]
+        for reader in self.readers:
+            reader._createFWLiteEvent()
+        
+    def to(self, index):
+        self.readers[0].to(index)
+        for reader in self.readers[1:]:
+            reader.object().to(self.readers[0].object().id())
+    
+    def __iter__(self):
+        for i in range(self.readers[0].size()):
+            self.to(i)
+            yield self
+    
+    def __getitem__(self, i):
+        return self.readers[i]
