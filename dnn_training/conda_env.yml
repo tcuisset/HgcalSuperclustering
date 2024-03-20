@@ -1,0 +1,27 @@
+name: superclustering-dnn-gpu
+channels:
+ - pytorch
+ - nvidia
+ - conda-forge
+ - nodefaults
+dependencies:
+ - python>=3.10
+ - ipykernel
+ - notebook
+ - numpy
+ - scipy
+ - uproot=5.*
+ - fsspec-xrootd
+ - awkward=2.*
+ - hist
+ - tqdm
+ - ipykernel # notebooks
+ - ipywidgets # to use tqdm in notebooks
+ - matplotlib>=3
+ - mplhep>=0.3 # plotting CMS style
+
+ - xrootd=5.5.3 # latest version 5.6.8 gives TLS error when accessing eosuser
+
+ - pytorch::pytorch
+ - pytorch-cuda=12.1
+ - onnx
