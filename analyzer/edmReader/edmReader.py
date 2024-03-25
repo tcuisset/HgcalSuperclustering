@@ -2,6 +2,8 @@ import ROOT
 import cppyy
 from DataFormats.FWLite import Events, Handle
 import edmReader.pythonizations
+from pathlib import Path
+import pandas as pd
 
 class EdmReader(Events):
     def __init__(self, *args, **kwargs) -> None:
@@ -93,3 +95,33 @@ class MultiEdmReader:
     
     def __getitem__(self, i):
         return self.readers[i]
+
+
+class SuperclsDataframeMaker:
+    def __init__(self) -> None:
+        self.ntuple_nbs = []
+        self.event_nbs = []
+        self.supercls_ids = []
+        self.ts_in_supercls_ids = []
+        self.ts_ids = []
+    
+    def processEvent(self, evt:EdmReader, ntuple:int=0):
+        event_nb = evt.eventAuxiliary().event()
+        for supercls_id, tsInSupercls_list in enumerate(evt.ticlSuperclusterLinks):
+            for ts_in_supercls_id, ts_id in enumerate(tsInSupercls_list):
+                self.ntuple_nbs.append(ntuple)
+                self.event_nbs.append(event_nb)
+                self.supercls_ids.append(supercls_id)
+                self.ts_in_supercls_ids.append(ts_in_supercls_id)
+                self.ts_ids.append(ts_id)
+
+    def makeDf(self):
+        df = pd.DataFrame(data=dict(ntuple=self.ntuple_nbs, event_=self.event_nbs, supercls_id=self.supercls_ids, ts_in_supercls_id=self.ts_in_supercls_ids, ts_id=self.ts_ids))
+        return df
+
+def makeDataframes(path:str):
+    path = Path(path)
+    evts = EdmReader(path)
+    genparticles = []
+    for evt in evts:
+        pass

@@ -1,0 +1,7 @@
+RepoPath=/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs
+InputFolder=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/supercls-v4
+OutputFolder=$InputFolder
+SampleId=201
+
+cmsRun -n 15 "$RepoPath/cmssw_jobs/cmsRunConfigStarter.py" -- -s $RepoPath/runs/AlessandroElectronConfigs/supercls_sampleDump_fromRECO.py \
+    -i $InputFolder/step3_$SampleId.root "--output-fileService=$OutputFolder/sampleDumper_$SampleId.root"

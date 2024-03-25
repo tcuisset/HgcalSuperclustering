@@ -1,0 +1,27 @@
+executable = /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsenvStarter.sh
+arguments = cmsRun -n $OMP_NUM_THREADS '/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py' -- '/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py' -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_ticlDumper_hgcalEvtDump.py -i /grid_mnt/data_cms_upgrade/tarabini/electrons_pre4_PU_oppositeSign_new/step2/step2_205.root 'process.maxEvents.input=cms.untracked.int32(1)'
+universe = vanilla
+output = logs/$(SampleId).out
+error = logs/$(SampleId).err
+log = logs/$(SampleId).log
+T3Queue = short
+WNTag = el7
+
+
+
+UNIX_GROUP = cms
+
+if !defined T3Queue
+  T3Queue=short
+endif
+
+accounting_group = $(UNIX_GROUP)
+
+concurrency_limits_expr = strcat(T3Queue,":",RequestCpus," ",AcctGroupUser,":",RequestCpus)
+
++T3Queue="$(T3Queue)"
++T3Group="$(UNIX_GROUP)"
++WNTag="$(WNTag)"
++T3Submit=true
+
+queue

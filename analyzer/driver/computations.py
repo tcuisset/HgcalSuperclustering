@@ -19,7 +19,7 @@ class DataframeComputation(Computation):
     def workOnSample(self, *args, **kwargs) -> pd.DataFrame:
         return self.workFct(*args, **kwargs)
     
-    def reduce(self, results: Iterable[pd.DataFrame], store:pd.HDFStore, nbOfEvents:Iterable[int]):
+    def reduce(self, results: Iterable[pd.DataFrame], store:str|None, nbOfEvents:Iterable[int]):
         # Update the event index so it is unique across batches
         runningEventCount = 0
         for result, cuurentNbOfEvts in zip(results, nbOfEvents):
@@ -29,8 +29,8 @@ class DataframeComputation(Computation):
         
         df = pd.concat(results)
         if store is not None:
-            assert (self.key is not None), "To store in HDF store, key should be set"
-            df.to_hdf(store, self.key, **self.hdfSettings)
+            assert (self.key is not None), "To store, key should be set"
+            df.to_pickle(store + "/" + self.key + ".pkl.gz")
         return df
 
 

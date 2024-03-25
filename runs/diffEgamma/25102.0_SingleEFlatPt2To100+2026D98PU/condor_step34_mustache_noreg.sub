@@ -1,0 +1,23 @@
+
+# Parameters (need absolute paths)
+ConfigPath = /home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/diffEgamma/25102.0_SingleEFlatPt2To100+2026D98PU
+Version = v3-1d9a7-mustache-noreg
+
+executable = $(ConfigPath)/condor_step34_mustache_noreg.sh
+transfer_input_files = $(ConfigPath)/step3_RAW2DIGI_RECO_RECOSIM_PAT_VALIDATION_DQM_PU.py, $(ConfigPath)/step4_HARVESTING_PU.py
+environment = "INDEX=$(SampleId) VERSION=$(Version)"
+universe = vanilla
+output = logs-mustache-noreg/step34_$(SampleId).out
+error = logs-mustache-noreg/step34_$(SampleId).err
+log = logs-mustache-noreg/step34_$(SampleId).log
+transfer_output_files = ""
+
+request_memory = 25G
+# can only be 1 or 8 on LLR T3
+request_cpus = 8
+
+T3Queue = $(T3Queue:long)
+WNTag = $(WNTag:el7)
+include : /opt/exp_soft/cms/t3/t3queue |
+
+queue SampleId from seq 1 10 |

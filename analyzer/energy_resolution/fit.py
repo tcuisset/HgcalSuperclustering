@@ -49,11 +49,13 @@ def fitCruijff(h_forFit:hist.Hist) -> CruijffFitResult:
     mean = np.average(h_forFit.axes[0].centers, weights=h_forFit.values())
     stdDev = np.average((h_forFit.axes[0].centers - mean)**2, weights=h_forFit.values())
     param_optimised,param_covariance_matrix = curve_fit(cruijff, h_forFit.axes[0].centers, h_forFit.values(), 
-        p0=[np.max(h_forFit), mean, stdDev, stdDev,  0.15, 0.15], sigma=np.maximum(np.sqrt(h_forFit.values()), 1.8), absolute_sigma=True, maxfev=500000)
+        p0=[np.max(h_forFit), mean, stdDev, stdDev,  0.1, 0.05], sigma=np.maximum(np.sqrt(h_forFit.values()), 1.8), absolute_sigma=True, maxfev=500000,
+        #bounds=np.transpose([(0., np.inf), (-np.inf, np.inf), (0., np.inf), (0., np.inf), (-np.inf, np.inf), (-np.inf, np.inf)])
+        )
     return CruijffFitResult(CruijffParam(*param_optimised), param_covariance_matrix)
 
 
-eratio_axis = partial(hist.axis.Regular, 100, 0, 2, name="e_ratio")
+eratio_axis = partial(hist.axis.Regular, 500, 0, 2, name="e_ratio")
 eta_axis = hist.axis.Variable([1.65, 2.15, 2.75], name="absSeedEta", label="|eta|seed")
 seedPt_axis = hist.axis.Variable([ 0.44310403, 11.58994007, 23.00519753, 34.58568954, 46.85866928,
        58.3225441 , 68.96975708, 80.80027771, 97.74741364], name="seedPt", label="Seed Et (GeV)") # edges are computed so that there are the same number of events in each bin
@@ -64,13 +66,13 @@ def make_scOrTsOverCP_energy_histogram(name, label=None):
 
 def fill_scOverCP_energy_histogram(h:hist.Hist, df:pd.DataFrame):
     """ df should be CPtoSC_df ie CaloParticle to Supercluster """
-    h.fill(e_ratio=df.regressed_energy_supercls_sum/df.regressed_energy_CP,
+    h.fill(e_ratio=df.raw_energy_supercls_sum/df.regressed_energy_CP,
         absSeedEta=np.abs(df.barycenter_eta_seed),
         seedPt=df.raw_pt_seed)
 
 def fill_seedTsOverCP_energy_histogram(h:hist.Hist, df:pd.DataFrame):
     """ df should be CPtoTs_df ie CaloParticle to seed trackster (highest pt trackster for each endcap) """
-    h.fill(e_ratio=df.regressed_energy/df.regressed_energy_CP,
+    h.fill(e_ratio=df.raw_energy/df.regressed_energy_CP,
         absSeedEta=np.abs(df.barycenter_eta),
         seedPt=df.raw_pt)
 

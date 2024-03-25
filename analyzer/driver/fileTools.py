@@ -12,13 +12,15 @@ import uproot
 import pandas as pd
 from tqdm.auto import tqdm 
 
-from analyzer.dumperReader.reader import DumperReader
+from analyzer.dumperReader.reader import DumperReader, Step3Reader, FWLiteDataframesReader
 from analyzer.dumperReader.dnnSampleReader import DNNSampleReader
 
-DumperType = Enum("DumperType", ["TICL", "TICLsupercls", "SuperclsSample"])
+DumperType = Enum("DumperType", ["TICL", "TICLsupercls", "SuperclsSample", "DNNStep3", "DNNDataframes"])
 """ TICL : TICL dumper (does not necessarily contain superclustering tree)
 TICLsupercls : TICL dumper holding superclustering tree
 SuperclsSample : output of SuperclusteringSampleDumper
+DNNStep3 : step3 in split mode for DNN CaloCluster+GsfElectrons (not used as problems reading event number with uproot)
+DNNDataframes : output of the FWLite dumper
 """
 
 def _dumperTypesFromFile(filePath:Path) -> list[DumperType]:
@@ -29,12 +31,14 @@ def _dumperTypesFromFile(filePath:Path) -> list[DumperType]:
         if "ticlDumper" in fileKeys:
             # TICL dumper
             ticlDumperKeys = file["ticlDumper"].keys(recursive=False, cycle=False)
-            if "tracksters" in ticlDumperKeys:
+            if "associations" in ticlDumperKeys:
                 res.append(DumperType.TICL)
             if "superclustering" in ticlDumperKeys:
                 res.append(DumperType.TICLsupercls)
         if "superclusteringSampleDumper" in fileKeys:
             res.append(DumperType.SuperclsSample)
+        if "Events" in fileKeys:
+            res.append(DumperType.DNNStep3)
     return res
 
         
@@ -85,6 +89,11 @@ class SingleInputReader:
         return DNNSampleReader(self.getFileForDumperType(DumperType.SuperclsSample))
     
     @cached_property
+    def step3Reader(self) -> Step3Reader:
+        """ Does not really work """
+        return Step3Reader(self.getFileForDumperType(DumperType.DNNStep3))
+    
+    @cached_property
     def nEvents(self) -> int:
         try:
             return self.ticlDumperReader.nEvents
@@ -96,8 +105,23 @@ class SingleInputReader:
         for dumperType, path in self._paths.items():
             res += f"{dumperType}={str(path)}, "
         return res + ")"
-        
 
+class SingleInputReaderFWLite:
+    def __init__(self, basePath_ticlDumper:str, basePath_fwlite:str, sampleNb:int) -> None:
+        self.basePath_ticlDumper = basePath_ticlDumper
+        self.basePath_fwlite = basePath_fwlite
+        self.sampleNb = sampleNb
+
+    @cached_property  
+    def ticlDumperReader(self):
+        return DumperReader(str(Path(self.basePath_ticlDumper) / f"ticlDumper_mustache_{self.sampleNb}.root"))
+    @cached_property
+    def fwliteDataframesReader(self):
+        return FWLiteDataframesReader(self.basePath_fwlite, self.sampleNb, self.ticlDumperReader)
+    @cached_property
+    def nEvents(self) -> int:
+        return self.ticlDumperReader.nEvents
+    
 class Computation:
     def workOnSample(self, reader:SingleInputReader):
         """ Do work on one sample, returning a result (must be pickleable) """
@@ -113,40 +137,66 @@ class Computation:
 
 
 class DumperInputManager:
-    def __init__(self, inputFolder:str|list[str], limitFileCount=None, restrictToAvailableDumperTypes:list[DumperType]=None) -> None:
+    def __init__(self, inputFolder:str|list[str]|dict[DumperType|tuple[DumperType], str], limitFileCount=None, restrictToAvailableDumperTypes:list[DumperType]=None) -> None:
         """ 
         Parameters : 
             - inputFolder : can be a folder or list of folders. In case of list, for the same sampleId, the items later in the list take priority 
             - restrictToAvailableDumperTypes : ignore all samples for which we do not have all the dumperTypes specified
         """
-        # folder mode
-        if isinstance(inputFolder, str):
-            inputFolder = [inputFolder] 
-        
-        pattern_dumper = re.compile(r"[a-zA-Z_\-0-9]{0,}[dD]umper_([0-9]{1,})\.root")
+        #pattern_dumper = re.compile(r"[a-zA-Z_\-0-9]{0,}[dD]umper_([0-9]{1,})\.root")
+        pattern_dumper = re.compile(r"[a-zA-Z_\-0-9]{1,}_([0-9]{1,})\.root")
         self.inputPerSample:dict[int, SingleInputReader] = dict()
-        for singleInputFolder in inputFolder:
-            singleInputFolder = Path(singleInputFolder)
-            assert singleInputFolder.is_dir(), "Input should be a folder or list of folders in folder mode"
-            for child in singleInputFolder.iterdir():
-                try:
-                    sampleNb = int(re.fullmatch(pattern_dumper, child.name).group(1))
+
+        if isinstance(inputFolder, dict): # dict mode
+            for dumperTypesForFolder_iter, singleInputFolder in inputFolder.items():
+                dumperTypesForFolder = set([dumperTypesForFolder_iter]) if isinstance(dumperTypesForFolder_iter, DumperType) else set(dumperTypesForFolder_iter) 
+                singleInputFolder = Path(singleInputFolder)
+                assert singleInputFolder.is_dir(), "Input should be a folder or list of folders in folder mode"
+                for child in singleInputFolder.iterdir():
                     try:
-                        dumperTypes = _dumperTypesFromFile(child)
-                        if len(dumperTypes) > 0:
-                            if sampleNb not in self.inputPerSample:
-                                self.inputPerSample[sampleNb] = SingleInputReader(sampleNb=sampleNb)
-                            self.inputPerSample[sampleNb].addFile(child, dumperTypes)
+                        sampleNb = int(re.fullmatch(pattern_dumper, child.name).group(1))
+                        try:
+                            dumperTypes = dumperTypesForFolder.intersection(_dumperTypesFromFile(child))
+                            if len(dumperTypes):
+                                if sampleNb not in self.inputPerSample:
+                                    self.inputPerSample[sampleNb] = SingleInputReader(sampleNb=sampleNb)
+                                self.inputPerSample[sampleNb].addFile(child, dumperTypes)
+                        except Exception as e:
+                            print(e)
+                    except AttributeError:
+                        pass # file does not match pattern
                     except Exception as e:
-                        print(e)
-                except AttributeError:
-                    pass # file does not match pattern
-                except Exception as e:
-                    print("Exception occurred whilst reading file " + str(child) + " : " + str(e))
-        
-        if restrictToAvailableDumperTypes is not None:
-            self.restrictToAvailableTypes(restrictToAvailableDumperTypes)
-        
+                        print("Exception occurred whilst reading file " + str(child) + " : " + str(e))
+
+        else:
+            # folder mode
+            if isinstance(inputFolder, str):
+                inputFolder = [inputFolder] 
+            
+            
+            
+            for singleInputFolder in inputFolder:
+                singleInputFolder = Path(singleInputFolder)
+                assert singleInputFolder.is_dir(), "Input should be a folder or list of folders in folder mode"
+                for child in singleInputFolder.iterdir():
+                    try:
+                        sampleNb = int(re.fullmatch(pattern_dumper, child.name).group(1))
+                        try:
+                            dumperTypes = _dumperTypesFromFile(child)
+                            if len(dumperTypes) > 0:
+                                if sampleNb not in self.inputPerSample:
+                                    self.inputPerSample[sampleNb] = SingleInputReader(sampleNb=sampleNb)
+                                self.inputPerSample[sampleNb].addFile(child, dumperTypes)
+                        except Exception as e:
+                            print(e)
+                    except AttributeError:
+                        pass # file does not match pattern
+                    except Exception as e:
+                        print("Exception occurred whilst reading file " + str(child) + " : " + str(e))
+            
+            if restrictToAvailableDumperTypes is not None:
+                self.restrictToAvailableTypes(restrictToAvailableDumperTypes)
+            
         if limitFileCount is not None:
             self.inputPerSample = dict(islice(self.inputPerSample.items(), limitFileCount))
         
@@ -173,13 +223,16 @@ def _map_fcn(input:SingleInputReader, computations:list[Computation]) -> list:
         raise RuntimeError("uproot.DeserializationError was raised in worker process whilst processing file " + str(input.sampleNb) + "\nThe message was " + str(e))
 
 
-def runComputations(computations:list[Computation], inputManager:DumperInputManager, store:pd.HDFStore|None=None, max_workers=10):
+def runComputations(computations:list[Computation], inputManager:DumperInputManager|list[SingleInputReader], store:pd.HDFStore|None=None, max_workers=10):
     """ Run the list of computations given, eventually in parallel
     
     Parameters : 
      - max_workers : if >1, run in multiprocessing mode with that many worker processes (if 1, run serially)
     """
-    inputReader = inputManager.inputReaders
+    if isinstance(inputManager, DumperInputManager):
+        inputReader = inputManager.inputReaders
+    else:
+        inputReader = inputManager
     if max_workers != 1:
         def wrapper(gen):
             while True:

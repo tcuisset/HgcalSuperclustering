@@ -1,3 +1,5 @@
+# not tested
+
 # Auto generated configuration file
 # using: 
 # Revision: 1.19 
@@ -76,24 +78,13 @@ process.configurationMetadata = cms.untracked.PSet(
 )
 
 # Output definition
-
 process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
     dataset = cms.untracked.PSet(
         dataTier = cms.untracked.string('GEN-SIM-RECO'),
         filterName = cms.untracked.string('')
     ),
     fileName = cms.untracked.string('file:step3.root'),
-    outputCommands = process.FEVTDEBUGHLTEventContent.outputCommands,
-    splitLevel = cms.untracked.int32(0)
-)
-
-process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
-    dataset = cms.untracked.PSet(
-        dataTier = cms.untracked.string('DQMIO'),
-        filterName = cms.untracked.string('')
-    ),
-    fileName = cms.untracked.string('file:step3_inDQM.root'),
-    outputCommands = process.DQMEventContent.outputCommands,
+    outputCommands = cms.untracked.vstring([]),
     splitLevel = cms.untracked.int32(0)
 )
 
@@ -164,14 +155,22 @@ process.validation_step11 = cms.EndPath(process.globalValidationOuterTracker)
 process.validation_step12 = cms.EndPath(process.validationECALPhase2)
 process.validation_step13 = cms.EndPath(process.trackerphase2ValidationSource)
 process.validation_step14 = cms.EndPath(process.validation)
-process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
-process.DQMoutput_step = cms.EndPath(process.DQMoutput)
+#process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
+#process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 
 # Schedule definition
 from RecoHGCal.TICL.customiseForTICLv5_cff import customiseForTICLv5
-from RecoHGCal.Configuration.RecoHGCal_EventContent_cff import customiseHGCalOnlyEventContent
-process = customiseHGCalOnlyEventContent(process)
-process = customiseForTICLv5(process, True) #True to also run the TICLDumper
+#from RecoHGCal.Configuration.RecoHGCal_EventContent_cff import customiseHGCalOnlyEventContent
+#process = customiseHGCalOnlyEventContent(process)
+process = customiseForTICLv5(process, False, enableSuperclusteringDNN=True) #True to also run the TICLDumper
+
+process.TFileService = cms.Service("TFileService",
+                                    fileName=cms.string("superclsDump.root")
+                                    )
+process.load("RecoHGCal.TICL.superclusteringSampleDumper_cfi")
+process.superclusteringSampleDumper_step = cms.EndPath(process.superclusteringSampleDumper)
+
+
 
 process.schedule = cms.Schedule(process.raw2digi_step,process.reconstruction_step,process.recosim_step,
     #process.Flag_HBHENoiseFilter,process.Flag_HBHENoiseIsoFilter,process.Flag_CSCTightHaloFilter,process.Flag_CSCTightHaloTrkMuUnvetoFilter,process.Flag_CSCTightHalo2015Filter,process.Flag_globalTightHalo2016Filter,process.Flag_globalSuperTightHalo2016Filter,process.Flag_HcalStripHaloFilter,process.Flag_hcalLaserEventFilter,process.Flag_EcalDeadCellTriggerPrimitiveFilter,process.Flag_EcalDeadCellBoundaryEnergyFilter,process.Flag_ecalBadCalibFilter,process.Flag_goodVertices,process.Flag_eeBadScFilter,process.Flag_ecalLaserCorrFilter,process.Flag_trkPOGFilters,process.Flag_chargedHadronTrackResolutionFilter,process.Flag_muonBadTrackFilter,process.Flag_BadChargedCandidateFilter,process.Flag_BadPFMuonFilter,process.Flag_BadPFMuonDzFilter,process.Flag_hfNoisyHitsFilter,process.Flag_BadChargedCandidateSummer16Filter,process.Flag_BadPFMuonSummer16Filter,process.Flag_trkPOG_manystripclus53X,process.Flag_trkPOG_toomanystripclus53X,process.Flag_trkPOG_logErrorTooManyClusters,process.Flag_METFilters,
@@ -181,8 +180,9 @@ process.schedule = cms.Schedule(process.raw2digi_step,process.reconstruction_ste
     #process.validation_step8, # removed to fix  No "CaloTPGRecord" record found in the EventSetup. in  module HcalDigisValidation/'AllHcalDigisValidation'
     process.validation_step9,
     #process.validation_step10,process.validation_step11,process.validation_step12,process.validation_step13,process.validation_step14,
-    process.FEVTDEBUGHLToutput_step,
-    process.DQMoutput_step
+    # process.FEVTDEBUGHLToutput_step,
+    # process.DQMoutput_step
+    process.superclusteringSampleDumper_step
     )
 process.schedule.associate(process.patTask)
 from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
@@ -222,3 +222,15 @@ process = customiseLogErrorHarvesterUsingOutputCommands(process)
 from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete
 process = customiseEarlyDelete(process)
 # End adding early deletion
+
+process.Timing = cms.Service("Timing",
+  summaryOnly = cms.untracked.bool(False),
+  useJobReport = cms.untracked.bool(True)
+)
+
+### Removing hgcal validator (usually not needed and quite slow)
+process.hgcalValidatorSequence.remove(process.hgcalValidatorv5)
+process.hgcalTiclPFValidation.remove(process.ticlPFValidation)
+process.hgcalValidation.remove(process.hgcalPFJetValidation)
+
+del process.FEVTDEBUGHLToutput

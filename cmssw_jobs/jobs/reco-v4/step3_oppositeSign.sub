@@ -1,0 +1,17 @@
+
+# Parameters (need absolute paths)
+InputFolder = /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign/
+OutputFolder = /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v4
+LogDir = logs
+
+# T3Queue = reserv
+# WNTag = reserv
+include : ../../template_submit_files/step3_noSupercls_ticlv5.sub
+
+#queue SampleId, SubSampleId from (201, 5)
+
+#queue SampleId from seq 201 220 |
+queue SampleId from seq 221 230 |
+#queue SampleId from seq 231 300 |
+#queue SampleId, SubSampleId from ../../template_submit_files/genSampleIds.py 202 203 |
+

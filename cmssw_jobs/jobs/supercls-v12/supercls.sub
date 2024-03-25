@@ -1,0 +1,19 @@
+
+# Parameters (need absolute paths)
+InputFolder = /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v6
+OutputFolder = /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/supercls-v12
+LogDir = logs
+
+include : ../../template_submit_files/fromStep3_supercls_ticlv5.sub
+
+#queue SampleId, SubSampleId from (201, 5)
+
+#queue SampleId from (1)
+
+#queue SampleId from seq 1 20 |
+
+#queue SampleId from seq 1 100 |
+queue SampleId from seq 201 210 |
+
+#queue SampleId, SubSampleId from ../../template_submit_files/genSampleIds.py 202 203 |
+

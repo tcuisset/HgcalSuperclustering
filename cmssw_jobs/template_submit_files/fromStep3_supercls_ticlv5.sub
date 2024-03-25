@@ -1,0 +1,27 @@
+
+# Parameters (need absolute paths)
+RepoPath = $(RepoPath:/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs)
+#InputFolder = /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/
+#OutputFolder = /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/supercls-v7
+#LogDir = logs
+# SampleId
+
+executable = $(RepoPath)/cmssw_jobs/cmsenvStarter.sh
+arguments = "cmsRun -n 8 '$(RepoPath)/cmssw_jobs/cmsRunConfigStarter.py' -- -s $(RepoPath)/runs/AlessandroElectronConfigs_ticlv5/fromStep3_supercls_ticlDumper_superclsSampleDumper.py \
+    -i $(InputFolder)/step3_$(SampleId).root  '--output-fileService=$(OutputFolder)/superclsDumper_$(SampleId).root'"
+environment = "CMSSW_BASE='$(RepoPath)/CMSSW_14_0_0_pre0'"
+universe = vanilla
+output = $(LogDir:logs)/$(SampleId).out
+error = $(LogDir:logs)/$(SampleId).err
+log = $(LogDir:logs)/$(SampleId).log
+when_to_transfer_output = ON_EXIT_OR_EVICT
+
+request_memory = 2G
+# can only be 1 or 8 on LLR T3
+request_cpus = 8
+
+T3Queue = short
+WNTag = el7
+include : /opt/exp_soft/cms/t3/t3queue |
+
+#queue SampleId in (205)

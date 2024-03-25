@@ -1,0 +1,11 @@
+
+# Parameters (need absolute paths)
+InputFolder = /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign/
+OutputFolder = /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/supercls-v4
+LogDir = logs
+# Put -1 for all evts in input file
+MaxEvents = -1
+
+include : ../../template_submit_files/default.sub
+
+queue SampleId in (201)

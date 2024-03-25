@@ -1,0 +1,12 @@
+
+# Parameters (need absolute paths, always use /grid_mnt/ prefix)
+InputFolder = /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-sameSign
+OutputFolder = /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/supercls-v3
+LogDir = logs
+# Put -1 for all evts in input file
+MaxEvents = -1
+
+include : ../../template_submit_files/default_sampleDumper.sub
+
+#queue SampleId in (100)
+queue SampleId in (100, 101, 102)

@@ -10,6 +10,7 @@ cd -
 
 cat  <<EOF >>step3_RAW2DIGI_RECO_RECOSIM_PAT_VALIDATION_DQM_PU.py
 process.source.fileNames = cms.untracked.vstring('file:/grid_mnt/data_cms_upgrade/cuisset/supercls/diffEgamma/25102_SingleE_D98PU/step2_$INDEX.root')
+#process.source.firstLuminosityBlock = cms.untracked.uint32($INDEX)
 
 process.FEVTDEBUGHLToutput.outputCommands.extend([
     "keep *_ecalDrivenElectronSeeds_*_*",

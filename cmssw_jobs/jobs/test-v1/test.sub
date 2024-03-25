@@ -1,0 +1,21 @@
+
+SampleId = 11test
+
+executable = /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsenvStarter.sh
+arguments = cmsRun '/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py' -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_ticlDumper_hgcalEvtDump.py -i /grid_mnt/data_cms_upgrade/tarabini/electrons_pre4_PU_oppositeSign_new/step2/step2_205.root '--output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/supercls-v1/step3_$(SampleId).root' '--output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/supercls-v1/step3_inDQM_$(SampleId).root' '--output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/supercls-v1/dumper_$(SampleId).root' 'process.maxEvents.input=cms.untracked.int32(1)'
+environment = "CMSSW_BASE='/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/CMSSW_13_2_5_patch2'"
+universe = vanilla
+output = logs/$(SampleId).out
+error = logs/$(SampleId).err
+log = logs/$(SampleId).log
+T3Queue = short
+WNTag = el7
+UNIX_GROUP = cms
+accounting_group = $(UNIX_GROUP)
+concurrency_limits_expr = strcat(T3Queue,":",RequestCpus," ",AcctGroupUser,":",RequestCpus)
+MY.T3Queue = "$(T3Queue)"
+MY.T3Group = "$(UNIX_GROUP)"
+MY.WNTag = "$(WNTag)"
+MY.T3Submit = true
+
+queue 

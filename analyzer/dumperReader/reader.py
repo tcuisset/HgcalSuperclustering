@@ -1,5 +1,6 @@
 from functools import cached_property
 from typing import Literal
+from pathlib import Path
 
 import awkward as ak
 import pandas as pd
@@ -54,11 +55,11 @@ class DumperReader:
     
     @property
     def nEvents(self):
-        return self.fileDir["tracksters"].num_entries
+        return self.fileDir["trackstersCLUE3DEM"].num_entries
 
     @cached_property
     def tracksters(self) -> ak.Array:
-        return self.fileDir["tracksters"].arrays()
+        return self.fileDir["trackstersCLUE3DEM"].arrays()
     
     @cached_property
     def tracksters_zipped(self) -> ak.Array:
@@ -71,7 +72,7 @@ class DumperReader:
 
     @cached_property
     def simTrackstersCP(self) -> ak.Array:
-        return self.fileDir["simtrackstersCP"].arrays(filter_name=["raw_energy", "raw_energy_em", "regressed_energy", "barycenter_*"])
+        return self.fileDir["simtrackstersCP"].arrays(filter_name=["event_", "raw_energy", "raw_energy_em", "regressed_energy", "barycenter_*"])
     @cached_property
     def simTrackstersCP_df(self) -> pd.DataFrame:
         return ak.to_dataframe(self.simTrackstersCP, levelname=lambda x : {0:"eventInternal", 1:"caloparticle_id"}[x])
@@ -98,7 +99,7 @@ class DumperReader:
 
     @cached_property
     def associations(self) -> ak.Array:
-        return self.fileDir["associations"].arrays(filter_name="tsCLUE3D_*")
+        return self.fileDir["associations"].arrays(filter_name=["event_", "tsCLUE3DEM_*"])
     
     
     @cached_property
@@ -110,8 +111,9 @@ class DumperReader:
     def supercluster_all_df(self) -> pd.DataFrame:
         """ Same as superclusters_df but tracksters not in a supercluster are included in a one-trackster supercluster each
         """
-        return ak.to_dataframe(self.superclusters_all, anonymous="ts_id",
-            levelname=lambda x : {0:"eventInternal", 1:"supercls_id", 2:"ts_in_supercls_id"}[x])
+        return self.supercluster_df
+        # return ak.to_dataframe(self.superclusters_all, anonymous="ts_id",
+        #     levelname=lambda x : {0:"eventInternal", 1:"supercls_id", 2:"ts_in_supercls_id"}[x])
     
     @cached_property
     def supercluster_merged_properties_all(self) -> pd.DataFrame:
@@ -158,6 +160,30 @@ class DumperReader:
         )
         
     
+class Step3Reader:
+    """ Reads step3 split EDM files """
+    def __init__(self, file:str|uproot.ReadOnlyDirectory) -> None:
+        try:
+            self.eventsTree = file["Events"]
+            self.file = file
+        except TypeError:
+            self.file = uproot.open(file)
+            self.eventsTree = self.file["Events"]
 
 
+class FWLiteDataframesReader:
+    """ Reads pandas dataframe made by the FWLite step3 -> pandas dumper """
+    def __init__(self, folder:str, sampleNb:int, readerForEventMapping:DumperReader) -> None:
+        self.folder = folder
+        self.sampleNb = sampleNb
+        self.eventMapping = ak.to_dataframe(readerForEventMapping.tracksters.event_, levelname=lambda x:"eventInternal", anonymous="event_").reset_index()
+        """ Dataframe mapping eventInternal (the index into the TICLDumper file) and the actual CMS event number (event_) """
+    
+    def readDataframe(self, name:str) -> pd.DataFrame:
+        return pd.read_pickle(Path(self.folder) / f"{name}_{self.sampleNb}.pkl.gz")
+    
+    @cached_property
+    def supercls(self) -> pd.DataFrame:
+        return pd.merge(self.readDataframe("supercls"), self.eventMapping, on="event_").set_index(["eventInternal", "supercls_id", "ts_in_supercls_id"])
 
+#ticlTracksters_ticlTracksterLinksSuperclustering_CLUE3D_RECO./ticlTracksters_ticlTracksterLinksSuperclustering_CLUE3D_RECO.obj/ticlTracksters_ticlTracksterLinksSuperclustering_CLUE3D_RECO.obj.regressed_energy_

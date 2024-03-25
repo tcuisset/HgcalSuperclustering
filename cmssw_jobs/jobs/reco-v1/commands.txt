@@ -1,0 +1,10 @@
+RepoPath=/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs
+InputFolder=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign/
+OutputFolder=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1b
+SampleId=202
+
+mkdir $OutputFolder
+
+cmsRun -n 10 "$RepoPath/cmssw_jobs/cmsRunConfigStarter.py" -- -s $RepoPath/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py \
+    -M 10 -i "$InputFolder/step2_$SampleId.root" "--output-fevt=$OutputFolder/step3_$SampleId.root" \
+    "--output-dqm=$OutputFolder/step3_inDQM_$SampleId.root" "--output-fileService=$OutputFolder/ticlNoSuperclsDumper_$SampleId.root"

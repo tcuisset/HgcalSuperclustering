@@ -31,3 +31,9 @@ process.Timing = cms.Service("Timing",
   summaryOnly = cms.untracked.bool(False),
   useJobReport = cms.untracked.bool(True)
 )
+
+
+### Removing hgcal validator (usually not needed and quite slow)
+process.hgcalValidatorSequence.remove(process.hgcalValidatorv5)
+process.hgcalTiclPFValidation.remove(process.ticlPFValidation)
+process.hgcalValidation.remove(process.hgcalPFJetValidation)

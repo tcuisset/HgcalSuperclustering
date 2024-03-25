@@ -1,3 +1,4 @@
+""" Reads TICLDumper output and makes histograms/reduced dataframes. THis is to avoid having to rerun the computations in a notebook each time we want to plot something """
 import os
 import argparse
 import glob

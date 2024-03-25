@@ -1,0 +1,24 @@
+
+# Parameters (need absolute paths)
+RepoPath = /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/
+InputFolder = /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign/
+OutputFolder = /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/supercls-v1
+LogDir = logs
+# Put -1 for all evts in input file
+MaxEvents = 1
+
+executable = $(RepoPath)/cmssw_jobs/cmsenvStarter.sh
+arguments = "cmsRun -n 1 '$(RepoPath)/cmssw_jobs/cmsRunConfigStarter.py' -- -s $(RepoPath)/runs/AlessandroElectronConfigs/step3_ticlDumper_hgcalEvtDump.py -i $(InputFolder)/step2_$(SampleId).root '--output-fevt=$(OutputFolder)/step3_$(SampleId).root' '--output-dqm=$(OutputFolder)/step3_inDQM_$(SampleId).root' '--output-fileService=$(OutputFolder)/dumper_$(SampleId).root' 'process.maxEvents.input=cms.untracked.int32($(MaxEvents))'"
+environment = "CMSSW_BASE='$(RepoPath)/CMSSW_13_2_5_patch2'"
+universe = vanilla
+output = $(LogDir)/$(SampleId).out
+error = $(LogDir)/$(SampleId).err
+log = $(LogDir)/$(SampleId).log
+
+request_memory = 4000
+
+T3Queue = short
+WNTag = el7
+include : /opt/exp_soft/cms/t3/t3queue |
+
+queue SampleId in (206)

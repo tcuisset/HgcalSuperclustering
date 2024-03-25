@@ -1,0 +1,13 @@
+
+# Parameters (need absolute paths)
+InputFolder = /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign/
+OutputFolder = /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/supercls-v5
+LogDir = logs
+
+include : ../../template_submit_files/shortQueue.sub
+
+#queue SampleId, SubSampleId from (201, 5)
+
+queue SampleId in (201, 202, 203)
+#queue SampleId, SubSampleId from ../../template_submit_files/genSampleIds.py 202 203 |
+

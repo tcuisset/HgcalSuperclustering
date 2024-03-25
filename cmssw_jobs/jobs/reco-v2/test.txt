@@ -1,0 +1,563 @@
+
+ClusterId=1
+PeriodicRelease=false
+Rank=0.0
+JobNotification=0
+StreamErr=false
+StreamOut=false
+WantRemoteIO=true
+LeaveJobInQueue=false
+Out="logs/231.out"
+TransferIn=false
+In="/dev/null"
+DiskUsage=1
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/231.log"
+Environment="CMSSW_BASE=/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/CMSSW_14_0_0_pre1"
+RootDir="/"
+CurrentHosts=0
+JobPrio=0
+PeriodicRemove=false
+PeriodicHold=false
+Err="logs/231.err"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_231.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_231.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_231.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_231.root"
+CommittedSlotTime=0
+TotalSuspensions=0
+LastSuspensionTime=0
+RemoteSysCpu=0.0
+CommittedTime=0
+WantRemoteSyscalls=false
+Cmd="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsenvStarter.sh"
+AccountingGroup="cms.cuisset"
+CumulativeSuspensionTime=0
+NumSystemHolds=0
+WhenToTransferOutput="ON_EXIT_OR_EVICT"
+TargetType="Machine"
+RemoteWallClockTime=0.0
+WantCheckpoint=false
+NumRestarts=0
+NumJobStarts=0
+Iwd="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2"
+NumJobCompletions=0
+CumulativeRemoteUserCpu=0.0
+NumCkpts=0
+ShouldTransferFiles="YES"
+ExitStatus=0
+CoreSize=0
+CumulativeSlotTime=0
+CumulativeRemoteSysCpu=0.0
+EnteredCurrentStatus=1702546453
+QDate=1702546453
+CompletionDate=0
+T3Submit=true
+Owner=undefined
+ExecutableSize=1
+T3Queue="reserv"
+RemoteUserCpu=0.0
+TransferInputSizeMB=0
+CondorPlatform="$CondorPlatform: x86_64_CentOS7 $"
+EncryptExecuteDirectory=false
+CommittedSuspensionTime=0
+MyType="Job"
+CondorVersion="$CondorVersion: 9.0.20 Nov 15 2023 BuildID: 690225 PackageID: 9.0.20-1 $"
+ExitBySignal=false
+JobUniverse=5
+T3Group="cms"
+ImageSize=1
+WNTag="reserv"
+JobLeaseDuration=2400
+AcctGroup="cms"
+ConcurrencyLimits=strcat(T3Queue,":",RequestCpus," ",AcctGroupUser,":",RequestCpus)
+AcctGroupUser="cuisset"
+RequestMemory=10240
+MaxHosts=1
+RequestCpus=8
+Requirements=(TARGET.Arch == "X86_64") && (TARGET.OpSys == "LINUX") && (TARGET.Disk >= RequestDisk) && (TARGET.Memory >= RequestMemory) && (TARGET.Cpus >= RequestCpus) && (TARGET.HasFileTransfer)
+MinHosts=1
+RequestDisk=DiskUsage
+OnExitHold=false
+OnExitRemove=true
+ProcId=0
+JobStatus=1
+
+ProcId=1
+JobStatus=1
+Err="logs/232.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/232.log"
+Out="logs/232.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_232.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_232.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_232.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_232.root"
+
+ProcId=2
+JobStatus=1
+Err="logs/233.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/233.log"
+Out="logs/233.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_233.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_233.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_233.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_233.root"
+
+ProcId=3
+JobStatus=1
+Err="logs/234.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/234.log"
+Out="logs/234.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_234.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_234.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_234.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_234.root"
+
+ProcId=4
+JobStatus=1
+Err="logs/235.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/235.log"
+Out="logs/235.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_235.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_235.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_235.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_235.root"
+
+ProcId=5
+JobStatus=1
+Err="logs/236.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/236.log"
+Out="logs/236.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_236.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_236.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_236.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_236.root"
+
+ProcId=6
+JobStatus=1
+Err="logs/237.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/237.log"
+Out="logs/237.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_237.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_237.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_237.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_237.root"
+
+ProcId=7
+JobStatus=1
+Err="logs/238.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/238.log"
+Out="logs/238.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_238.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_238.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_238.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_238.root"
+
+ProcId=8
+JobStatus=1
+Err="logs/239.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/239.log"
+Out="logs/239.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_239.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_239.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_239.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_239.root"
+
+ProcId=9
+JobStatus=1
+Err="logs/240.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/240.log"
+Out="logs/240.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_240.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_240.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_240.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_240.root"
+
+ProcId=10
+JobStatus=1
+Err="logs/241.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/241.log"
+Out="logs/241.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_241.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_241.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_241.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_241.root"
+
+ProcId=11
+JobStatus=1
+Err="logs/242.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/242.log"
+Out="logs/242.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_242.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_242.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_242.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_242.root"
+
+ProcId=12
+JobStatus=1
+Err="logs/243.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/243.log"
+Out="logs/243.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_243.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_243.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_243.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_243.root"
+
+ProcId=13
+JobStatus=1
+Err="logs/244.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/244.log"
+Out="logs/244.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_244.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_244.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_244.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_244.root"
+
+ProcId=14
+JobStatus=1
+Err="logs/245.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/245.log"
+Out="logs/245.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_245.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_245.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_245.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_245.root"
+
+ProcId=15
+JobStatus=1
+Err="logs/246.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/246.log"
+Out="logs/246.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_246.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_246.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_246.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_246.root"
+
+ProcId=16
+JobStatus=1
+Err="logs/247.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/247.log"
+Out="logs/247.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_247.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_247.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_247.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_247.root"
+
+ProcId=17
+JobStatus=1
+Err="logs/248.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/248.log"
+Out="logs/248.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_248.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_248.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_248.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_248.root"
+
+ProcId=18
+JobStatus=1
+Err="logs/249.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/249.log"
+Out="logs/249.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_249.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_249.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_249.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_249.root"
+
+ProcId=19
+JobStatus=1
+Err="logs/250.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/250.log"
+Out="logs/250.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_250.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_250.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_250.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_250.root"
+
+ProcId=20
+JobStatus=1
+Err="logs/251.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/251.log"
+Out="logs/251.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_251.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_251.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_251.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_251.root"
+
+ProcId=21
+JobStatus=1
+Err="logs/252.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/252.log"
+Out="logs/252.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_252.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_252.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_252.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_252.root"
+
+ProcId=22
+JobStatus=1
+Err="logs/253.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/253.log"
+Out="logs/253.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_253.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_253.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_253.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_253.root"
+
+ProcId=23
+JobStatus=1
+Err="logs/254.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/254.log"
+Out="logs/254.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_254.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_254.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_254.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_254.root"
+
+ProcId=24
+JobStatus=1
+Err="logs/255.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/255.log"
+Out="logs/255.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_255.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_255.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_255.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_255.root"
+
+ProcId=25
+JobStatus=1
+Err="logs/256.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/256.log"
+Out="logs/256.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_256.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_256.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_256.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_256.root"
+
+ProcId=26
+JobStatus=1
+Err="logs/257.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/257.log"
+Out="logs/257.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_257.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_257.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_257.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_257.root"
+
+ProcId=27
+JobStatus=1
+Err="logs/258.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/258.log"
+Out="logs/258.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_258.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_258.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_258.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_258.root"
+
+ProcId=28
+JobStatus=1
+Err="logs/259.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/259.log"
+Out="logs/259.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_259.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_259.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_259.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_259.root"
+
+ProcId=29
+JobStatus=1
+Err="logs/260.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/260.log"
+Out="logs/260.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_260.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_260.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_260.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_260.root"
+
+ProcId=30
+JobStatus=1
+Err="logs/261.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/261.log"
+Out="logs/261.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_261.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_261.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_261.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_261.root"
+
+ProcId=31
+JobStatus=1
+Err="logs/262.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/262.log"
+Out="logs/262.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_262.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_262.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_262.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_262.root"
+
+ProcId=32
+JobStatus=1
+Err="logs/263.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/263.log"
+Out="logs/263.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_263.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_263.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_263.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_263.root"
+
+ProcId=33
+JobStatus=1
+Err="logs/264.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/264.log"
+Out="logs/264.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_264.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_264.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_264.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_264.root"
+
+ProcId=34
+JobStatus=1
+Err="logs/265.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/265.log"
+Out="logs/265.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_265.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_265.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_265.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_265.root"
+
+ProcId=35
+JobStatus=1
+Err="logs/266.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/266.log"
+Out="logs/266.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_266.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_266.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_266.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_266.root"
+
+ProcId=36
+JobStatus=1
+Err="logs/267.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/267.log"
+Out="logs/267.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_267.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_267.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_267.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_267.root"
+
+ProcId=37
+JobStatus=1
+Err="logs/268.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/268.log"
+Out="logs/268.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_268.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_268.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_268.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_268.root"
+
+ProcId=38
+JobStatus=1
+Err="logs/269.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/269.log"
+Out="logs/269.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_269.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_269.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_269.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_269.root"
+
+ProcId=39
+JobStatus=1
+Err="logs/270.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/270.log"
+Out="logs/270.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_270.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_270.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_270.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_270.root"
+
+ProcId=40
+JobStatus=1
+Err="logs/271.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/271.log"
+Out="logs/271.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_271.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_271.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_271.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_271.root"
+
+ProcId=41
+JobStatus=1
+Err="logs/272.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/272.log"
+Out="logs/272.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_272.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_272.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_272.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_272.root"
+
+ProcId=42
+JobStatus=1
+Err="logs/273.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/273.log"
+Out="logs/273.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_273.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_273.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_273.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_273.root"
+
+ProcId=43
+JobStatus=1
+Err="logs/274.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/274.log"
+Out="logs/274.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_274.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_274.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_274.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_274.root"
+
+ProcId=44
+JobStatus=1
+Err="logs/275.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/275.log"
+Out="logs/275.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_275.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_275.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_275.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_275.root"
+
+ProcId=45
+JobStatus=1
+Err="logs/276.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/276.log"
+Out="logs/276.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_276.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_276.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_276.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_276.root"
+
+ProcId=46
+JobStatus=1
+Err="logs/277.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/277.log"
+Out="logs/277.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_277.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_277.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_277.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_277.root"
+
+ProcId=47
+JobStatus=1
+Err="logs/278.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/278.log"
+Out="logs/278.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_278.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_278.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_278.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_278.root"
+
+ProcId=48
+JobStatus=1
+Err="logs/279.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/279.log"
+Out="logs/279.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_279.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_279.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_279.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_279.root"
+
+ProcId=49
+JobStatus=1
+Err="logs/280.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/280.log"
+Out="logs/280.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_280.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_280.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_280.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_280.root"
+
+ProcId=50
+JobStatus=1
+Err="logs/281.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/281.log"
+Out="logs/281.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_281.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_281.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_281.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_281.root"
+
+ProcId=51
+JobStatus=1
+Err="logs/282.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/282.log"
+Out="logs/282.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_282.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_282.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_282.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_282.root"
+
+ProcId=52
+JobStatus=1
+Err="logs/283.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/283.log"
+Out="logs/283.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_283.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_283.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_283.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_283.root"
+
+ProcId=53
+JobStatus=1
+Err="logs/284.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/284.log"
+Out="logs/284.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_284.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_284.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_284.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_284.root"
+
+ProcId=54
+JobStatus=1
+Err="logs/285.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/285.log"
+Out="logs/285.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_285.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_285.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_285.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_285.root"
+
+ProcId=55
+JobStatus=1
+Err="logs/286.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/286.log"
+Out="logs/286.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_286.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_286.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_286.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_286.root"
+
+ProcId=56
+JobStatus=1
+Err="logs/287.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/287.log"
+Out="logs/287.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_287.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_287.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_287.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_287.root"
+
+ProcId=57
+JobStatus=1
+Err="logs/288.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/288.log"
+Out="logs/288.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_288.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_288.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_288.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_288.root"
+
+ProcId=58
+JobStatus=1
+Err="logs/289.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/289.log"
+Out="logs/289.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_289.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_289.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_289.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_289.root"
+
+ProcId=59
+JobStatus=1
+Err="logs/290.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/290.log"
+Out="logs/290.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_290.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_290.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_290.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_290.root"
+
+ProcId=60
+JobStatus=1
+Err="logs/291.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/291.log"
+Out="logs/291.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_291.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_291.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_291.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_291.root"
+
+ProcId=61
+JobStatus=1
+Err="logs/292.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/292.log"
+Out="logs/292.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_292.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_292.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_292.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_292.root"
+
+ProcId=62
+JobStatus=1
+Err="logs/293.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/293.log"
+Out="logs/293.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_293.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_293.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_293.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_293.root"
+
+ProcId=63
+JobStatus=1
+Err="logs/294.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/294.log"
+Out="logs/294.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_294.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_294.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_294.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_294.root"
+
+ProcId=64
+JobStatus=1
+Err="logs/295.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/295.log"
+Out="logs/295.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_295.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_295.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_295.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_295.root"
+
+ProcId=65
+JobStatus=1
+Err="logs/296.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/296.log"
+Out="logs/296.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_296.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_296.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_296.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_296.root"
+
+ProcId=66
+JobStatus=1
+Err="logs/297.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/297.log"
+Out="logs/297.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_297.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_297.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_297.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_297.root"
+
+ProcId=67
+JobStatus=1
+Err="logs/298.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/298.log"
+Out="logs/298.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_298.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_298.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_298.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_298.root"
+
+ProcId=68
+JobStatus=1
+Err="logs/299.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/299.log"
+Out="logs/299.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_299.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_299.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_299.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_299.root"
+
+ProcId=69
+JobStatus=1
+Err="logs/300.err"
+UserLog="/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/reco-v2/logs/300.log"
+Out="logs/300.out"
+Arguments="cmsRun -n 8 /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/cmsRunConfigStarter.py -- -s /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/AlessandroElectronConfigs/step3_TICLonly_noSupercls.py -i /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign//step2_300.root --output-fevt=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_300.root --output-dqm=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/step3_inDQM_300.root --output-fileService=/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/reco-v1/ticlNoSuperclsDumper_300.root"
