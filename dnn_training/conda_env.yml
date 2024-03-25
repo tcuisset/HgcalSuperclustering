@@ -19,6 +19,7 @@ dependencies:
  - ipywidgets # to use tqdm in notebooks
  - matplotlib>=3
  - mplhep>=0.3 # plotting CMS style
+ - scikit-learn # for ROC curves 
 
  - xrootd=5.5.3 # latest version 5.6.8 gives TLS error when accessing eosuser
 
