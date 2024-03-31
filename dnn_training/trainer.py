@@ -201,8 +201,8 @@ class Trainer:
         self.writer.add_scalar("Validation/ROC_AUC", auc1, self.current_epoch)
 
         ## ROC curve in eta and en bins
-        ens = [ 0.44310403, 11.58994007, 23.00519753, 34.58568954, 46.85866928, 58.3225441 , 68.96975708, 80.80027771, 97.74741364]
-        etas = np.linspace(1.65, 2.75, 5)#[1.65, 2.15, 2.75]
+        ens = [0., 2.21427965, 3.11312909, 4.44952669, 7.04064255, 10., np.inf]
+        etas = [1.5, 2.28675771, 2.5121839 , 2.68080544, 3.15]#[1.65, 2.15, 2.75]
         aucs = {}
         val_etas = val_dataset[:]["features"][0][:, 3] # index 3 is multi_eta
         val_energies = val_dataset[:]["features"][0][:, 2] # index 2 is multi_en
