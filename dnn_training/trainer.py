@@ -1,6 +1,6 @@
 import torch
 from torch import nn
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset, DataLoader, WeightedRandomSampler
 from torch.utils.tensorboard import SummaryWriter
 import uproot
 import awkward as ak
@@ -90,11 +90,18 @@ def makeModelLoss(dropout=0.2):
     return model, loss
 
 
-def makeDatasetsTrainVal(inputFolder:str="/grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/supercls-v13/superclsDumper_1.root", device="cpu"):
-    """ Set device to gpu only if you want to move the whole dataset to GPU then use num_workers=0 in DataLoader. THis is usually slower than keeping tensors on CPU then using num_workers > 1 """
-    dataset_ak = makeTarget(selectSeedOnly(zipDataset(loadDataset_ak(inputFolder))))
-    dataset_torch = makeTorchDataset(makeFeatures(dataset_ak,  ['DeltaEtaBaryc', 'DeltaPhiBaryc', 'multi_en', 'multi_eta', 'multi_pt', 'seedEta','seedPhi','seedEn', 'seedPt', 'theta', 'theta_xz_seedFrame', 'theta_yz_seedFrame', 'theta_xy_cmsFrame', 'theta_yz_cmsFrame', 'theta_xz_cmsFrame', 'explVar', 'explVarRatio']),
-                    ak.to_numpy(ak.flatten(dataset_ak.genMatching)), device=device)
+def makeDatasetsTrainVal(inputFolder:str, device="cpu", useCache=True):
+    """ Set device to gpu only if you want to move the whole dataset to GPU then use num_workers=0 in DataLoader. THis is usually slower than keeping tensors on CPU then using num_workers > 1
+    useCache : if True, will use the cached version of the dataset if found
+    """
+    cached_dataset_path = Path("/".join(inputFolder.split("/")[:-1])) / "cached_torch_dataset.pt"
+    if useCache and cached_dataset_path.is_file():
+        dataset_torch = torch.load(cached_dataset_path)
+    else:
+        dataset_ak = makeTarget(selectSeedOnly(zipDataset(loadDataset_ak(inputFolder))))
+        dataset_torch = makeTorchDataset(makeFeatures(dataset_ak,  ['DeltaEtaBaryc', 'DeltaPhiBaryc', 'multi_en', 'multi_eta', 'multi_pt', 'seedEta','seedPhi','seedEn', 'seedPt', 'theta', 'theta_xz_seedFrame', 'theta_yz_seedFrame', 'theta_xy_cmsFrame', 'theta_yz_cmsFrame', 'theta_xz_cmsFrame', 'explVar', 'explVarRatio']),
+                        ak.to_numpy(ak.flatten(dataset_ak.genMatching)), device=device)
+        torch.save(dataset_torch, cached_dataset_path)
 
     train_dataset, val_dataset = torch.utils.data.random_split(dataset_torch, [0.7, 0.3])
     return train_dataset, val_dataset
@@ -287,12 +294,21 @@ class Trainer:
         self.current_epoch = checkpoint["epoch"]
 
     
-    def full_train(self, train_dataset, val_dataset, nepochs=10, batch_size=8000):
+    def full_train(self, train_dataset, val_dataset, nepochs=10, batch_size=8000, weightSamples=False):
         if self.device != "cpu":
             dataloader_kwargs = dict(num_workers=10, pin_memory=True, pin_memory_device=self.device)
         else:
             dataloader_kwargs = dict()
-        train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, **dataloader_kwargs)
+        if weightSamples:
+            # weight samples so we are equally likely to train on genmatched seed-candidate pairs than not
+            gen = train_dataset[:]["genmatching"][0]
+            # using replacement=True is important as otherwise the sampler runs out of genmatched samples and just spits out batches with only non-genmatched pairs, which is very bad for training !
+            sampler = WeightedRandomSampler(torch.where(gen==1, torch.sum(gen==0)/torch.sum(gen==1), 1.), gen.shape[0], replacement=True)
+            shuffle = False
+        else:
+            sampler = None
+            shuffle = True
+        train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=shuffle, sampler=sampler, **dataloader_kwargs)
         val_dataloader = DataLoader(val_dataset, batch_size=100000, **dataloader_kwargs)
         for epoch in tqdm(range(nepochs)):
             self.current_epoch += 1
@@ -328,6 +344,7 @@ if __name__ == "__main__":
     parser.add_argument("-e", "--nEpochs", help="Number of epochs to train for", default=10, type=int)
     parser.add_argument("-b", "--batchSize", help="Batch size", default=8000, type=int)
     parser.add_argument("--dropout", help="Dropout probability", default=0.2, type=float)
+    parser.add_argument("--weightSamples", help="weight samples so we are equally likely to train on genmatched seed-candidate pairs than not", default=False, action="store_true")
     args = parser.parse_args()
 
     device = args.device
@@ -338,4 +355,4 @@ if __name__ == "__main__":
     print("Loading dataset...")
     train_dataset, val_dataset = makeDatasetsTrainVal(args.input)
     print("Dataset loaded into RAM")
-    trainer.full_train(train_dataset, val_dataset, nepochs=args.nEpochs, batch_size=args.batchSize)
+    trainer.full_train(train_dataset, val_dataset, nepochs=args.nEpochs, batch_size=args.batchSize, weightSamples=args.weightSamples)
