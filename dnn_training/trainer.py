@@ -12,8 +12,7 @@ from sklearn.metrics import roc_curve, auc, confusion_matrix
 import matplotlib.pyplot as plt
 import copy
 
-from dnn_training.dataset_ak import *
-from dnn_training.dataset_torch import *
+from dnn_training.dataset import *
 
 # case candidateTracksterBestAssociation_simTsIdx != seedTracksterBestAssociation_simTsIdx
 # -> avoid at maximum
@@ -24,6 +23,7 @@ from dnn_training.dataset_torch import *
 # seedTracksterBestAssociationScore good && candidateTracksterAssociationWithSeed_score bad -> to avoid
 # seedTracksterBestAssociationScore bad : what to do ?
 
+featureNames = ['DeltaEtaBaryc', 'DeltaPhiBaryc', 'multi_en', 'multi_eta', 'multi_pt', 'seedEta','seedPhi','seedEn', 'seedPt', 'theta', 'theta_xz_seedFrame', 'theta_yz_seedFrame', 'theta_xy_cmsFrame', 'theta_yz_cmsFrame', 'theta_xz_cmsFrame', 'explVar', 'explVarRatio']
 featureCount = 17
 
 class FeatureScaler(nn.Module):
@@ -89,22 +89,60 @@ def makeModelLoss(dropout=0.2):
     loss = nn.BCELoss()
     return model, loss
 
+class BaseLoss:
+    def compute_loss_train(self, pred:torch.Tensor, train_batch:dict[str, tuple[torch.Tensor]]) -> torch.Tensor:
+        """ Computes loss for a training batch
+        pred is the tensor of predictions from the DNN
+        train_batch is dict with keys features, genmatching, etc """
+        raise NotImplementedError()
 
-def makeDatasetsTrainVal(inputFolder:str, device="cpu", useCache=True):
-    """ Set device to gpu only if you want to move the whole dataset to GPU then use num_workers=0 in DataLoader. THis is usually slower than keeping tensors on CPU then using num_workers > 1
-    useCache : if True, will use the cached version of the dataset if found
+    def val_eval(self, pred:torch.Tensor, val_dataset:dict[str, torch.Tensor]) -> torch.Tensor:
+        """ Computes loss for the validation dataset """
+        raise NotImplementedError()
+
+class BinaryLoss(BaseLoss):
+    """ Loss doing binary classification based on genmatching feature in batches """
+    def __init__(self, loss_module:nn.Module|None=None) -> None:
+        """ Default loss is BCELoss (binary cross-entropy) """
+        super().__init__()
+        self.loss_module = loss_module if loss_module is not None else nn.BCELoss()
+    
+    def compute_loss_train(self, pred:torch.Tensor, train_batch:dict[str, tuple[torch.Tensor]]) -> torch.Tensor:
+        return self.loss_module(pred, train_batch["genmatching"][0].to(pred.device))
+    
+    def val_eval(self, pred:torch.Tensor, val_dataset:dict[str, torch.Tensor]) -> torch.Tensor:
+        return self.loss_module(pred, val_dataset["genmatching"]) # normally val_dataset is on gpu
+
+class ContinuousAssociationScoreLoss(BaseLoss):
+    """ Loss targeting the association score seed-candidate instead of binary genMatched/notGenMatched
+    Avoids having to set a working point for genmatching before training
     """
-    cached_dataset_path = Path("/".join(inputFolder.split("/")[:-1])) / "cached_torch_dataset.pt"
-    if useCache and cached_dataset_path.is_file():
-        dataset_torch = torch.load(cached_dataset_path)
-    else:
-        dataset_ak = makeTarget(selectSeedOnly(zipDataset(loadDataset_ak(inputFolder))))
-        dataset_torch = makeTorchDataset(makeFeatures(dataset_ak,  ['DeltaEtaBaryc', 'DeltaPhiBaryc', 'multi_en', 'multi_eta', 'multi_pt', 'seedEta','seedPhi','seedEn', 'seedPt', 'theta', 'theta_xz_seedFrame', 'theta_yz_seedFrame', 'theta_xy_cmsFrame', 'theta_yz_cmsFrame', 'theta_xz_cmsFrame', 'explVar', 'explVarRatio']),
-                        ak.to_numpy(ak.flatten(dataset_ak.genMatching)), device=device)
-        torch.save(dataset_torch, cached_dataset_path)
+    def __init__(self, loss_module:nn.Module|None=None) -> None:
+        """ Default loss is BCELoss (binary cross-entropy) """
+        super().__init__()
+        self.loss_module = loss_module if loss_module is not None else nn.MSELoss()
+    
+    def compute_loss_train(self, pred:torch.Tensor, train_batch:dict[str, tuple[torch.Tensor]]) -> torch.Tensor:
+        return self.loss_module(pred, train_batch["genmatching"][0].to(pred.device))
+    
+    def val_eval(self, pred:torch.Tensor, val_dataset:dict[str, torch.Tensor]) -> torch.Tensor:
+        return self.loss_module(pred, val_dataset["genmatching"]) # normally val_dataset is on gpu
 
-    train_dataset, val_dataset = torch.utils.data.random_split(dataset_torch, [0.7, 0.3])
-    return train_dataset, val_dataset
+# def makeDatasetsTrainVal(inputFolder:str, device="cpu", useCache=True):
+#     """ Set device to gpu only if you want to move the whole dataset to GPU then use num_workers=0 in DataLoader. THis is usually slower than keeping tensors on CPU then using num_workers > 1
+#     useCache : if True, will use the cached version of the dataset if found
+#     """
+#     cached_dataset_path = Path("/".join(inputFolder.split("/")[:-1])) / "cached_torch_dataset.pt"
+#     if useCache and cached_dataset_path.is_file():
+#         dataset_torch = torch.load(cached_dataset_path)
+#     else:
+#         dataset_ak = makeTargetBinaryBinary(selectSeedOnly(zipDataset(loadDataset_ak(inputFolder))))
+#         dataset_torch = makeTorchDataset(makeFeatures(dataset_ak,  ['DeltaEtaBaryc', 'DeltaPhiBaryc', 'multi_en', 'multi_eta', 'multi_pt', 'seedEta','seedPhi','seedEn', 'seedPt', 'theta', 'theta_xz_seedFrame', 'theta_yz_seedFrame', 'theta_xy_cmsFrame', 'theta_yz_cmsFrame', 'theta_xz_cmsFrame', 'explVar', 'explVarRatio']),
+#                         ak.to_numpy(ak.flatten(dataset_ak.genMatching)), device=device)
+#         torch.save(dataset_torch, cached_dataset_path)
+
+#     train_dataset, val_dataset = torch.utils.data.random_split(dataset_torch, [0.7, 0.3])
+#     return train_dataset, val_dataset
 
 
 
@@ -128,8 +166,8 @@ class Trainer:
         self.train_losses_currentEpoch = []
         self.train_batch_sizes_currentEpoch = [] # keeping the batch sizes so we have a proper average loss 
         self.train_losses_perEpoch = []
-        self.val_losses_currentEpoch = []
-        self.val_batch_sizes_currentEpoch = []
+        #self.val_losses_currentEpoch = []
+        #self.val_batch_sizes_currentEpoch = []
         self.val_losses_perEpoch = []
 
         self.current_epoch = 0
@@ -155,34 +193,57 @@ class Trainer:
         self.train_losses_currentEpoch = []
         self.train_batch_sizes_currentEpoch = []
     
-    def val_step(self, batch):
+    def val_evaluateModel(self, val_dataset):
+        self.model.eval()
         with torch.no_grad():
-            feats = batch["features"][0].to(self.device)
-            genmatching = batch["genmatching"][0].to(self.device)
+            feats = val_dataset["features"]
+            genmatching = val_dataset["genmatching"]
             pred = torch.squeeze(self.model(feats), dim=1)
 
             loss = self.loss_fn(pred, genmatching)
-            self.val_losses_currentEpoch.append(loss.item())
-            self.val_batch_sizes_currentEpoch.append(feats.shape[0])
+            self.val_losses_perEpoch.append(loss.item()/len(genmatching))
+            #self.val_batch_sizes_currentEpoch.append(feats.shape[0])
 
-            return {"pred" : pred.cpu(), "genmatching" : genmatching.cpu(), "pred_genMatched" : pred[genmatching==1].cpu(), "pred_nonGenMatched" : pred[genmatching==0].cpu()}
+            return pred
+            #return {"pred" : pred.cpu(), "genmatching" : genmatching.cpu(), "pred_genMatched" : pred[genmatching==1].cpu(), "pred_nonGenMatched" : pred[genmatching==0].cpu()}
     
-    def val_loop(self, val_dataloader, val_dataset:Dataset):
-        self.model.eval()
-        pred_vals = []
-        for batch_id, batch in enumerate(val_dataloader):
-            pred_vals.append(self.val_step(batch))
-        self.val_losses_perEpoch.append(np.average(self.val_losses_currentEpoch, weights=self.val_batch_sizes_currentEpoch))
-        self.val_losses_currentEpoch = []
-        self.val_batch_sizes_currentEpoch = []
+    def val_loop(self, val_dataset:dict[str, torch.Tensor]):
+        with torch.no_grad():
+            pred = self.val_evaluateModel(val_dataset)
+            genmatching = val_dataset["genmatching"]
+            pred_genMatched = pred[genmatching==1]
+            pred_nonGenMatched = pred[genmatching==0]
+            self.writer.add_histogram("Validation/pred_genMatched", pred_genMatched, self.current_epoch)
+            self.writer.add_histogram("Validation/pred_nonGenMatched", pred_nonGenMatched, self.current_epoch)
 
-        pred = torch.cat([d["pred"] for d in pred_vals])
-        genmatching = torch.cat([d["genmatching"] for d in pred_vals])
-        pred_genMatched = torch.cat([d["pred_genMatched"] for d in pred_vals])
-        pred_nonGenMatched = torch.cat([d["pred_nonGenMatched"] for d in pred_vals])
-        self.writer.add_histogram("Validation/pred_genMatched", pred_genMatched, self.current_epoch)
-        self.writer.add_histogram("Validation/pred_nonGenMatched", pred_nonGenMatched, self.current_epoch)
+            # computing sum of superclustered energy per event (this part of the code assumes there is only one CaloParticle per event)
+            def superclusteredEnergyForWP(wp:float):
+                """ Compute for each event the sum of energy superclustered by the DNN at the given WP """
+                return torch.scatter_add(torch.zeros(torch.max(val_dataset["eventIndex"])+1, device=val_dataset["eventIndex"].device), 0, val_dataset["eventIndex"], val_dataset["features"][:, featureNames.index("multi_en")]*(pred >= wp))
 
+            def gaussianSigmaApprox(energyPerEvent:torch.Tensor):
+                """ Approximate sigma of energySupercls/CP_energy using quantiles to avoid tails """
+                ratio = energyPerEvent / val_dataset["caloParticleEnergy_perEvent"]
+                p, sigma_factor = 0.95, 2 # 2 sigma on either side of peak. Can also be set to 0.68, 1 for 1sigma on each side
+                quantiles = torch.quantile(ratio, torch.tensor([0.5-p/2, 0.5+p/2], device=energyPerEvent.device)) # quantiles corresponding to mu-sigma_factor*sigma, mu+sigma_factor*sigma of a gaussian
+                return torch.mean(ratio).cpu(), ((quantiles[1] - quantiles[0])/(2*sigma_factor)).cpu()
+
+            gaussianSigmaApprox_res = {}
+            mu_res = {}
+            sigmaOverMu_approx_res = {}
+            dnn_wps = [0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+            for dnn_wp in dnn_wps:
+                superclsEnergy = superclusteredEnergyForWP(dnn_wp)
+                mu, sigma = gaussianSigmaApprox(superclsEnergy)
+                key = f"WP={dnn_wp}"
+                gaussianSigmaApprox_res[key] = sigma
+                mu_res[key] = mu
+                sigmaOverMu_approx_res[key] = sigma/mu
+                self.writer.add_scalar(f"Val_Sigma_approx/{key}", sigma, self.current_epoch)
+                self.writer.add_scalar(f"Val_Mu/{key}", mu, self.current_epoch)
+                self.writer.add_scalar(f"Val_SigmaOverMu_approx/{key}", sigma/mu, self.current_epoch)
+                
+        ## Accuracy
         def computeAccuracy(cut):
             tp = len(pred_genMatched[pred_genMatched>cut])
             fp = len(pred_nonGenMatched[pred_nonGenMatched>cut])
@@ -194,6 +255,9 @@ class Trainer:
 
         if self.current_epoch % 5 != 0:
             return
+        
+        genmatching = genmatching.cpu()
+        pred = pred.cpu()
         ### ROC curve
         fpr, tpr, threshold = roc_curve(genmatching, pred)
         auc1 = auc(fpr, tpr)
@@ -208,21 +272,21 @@ class Trainer:
         self.writer.add_scalar("Validation/ROC_AUC", auc1, self.current_epoch)
 
         ## ROC curve in eta and en bins
-        ens = [0., 2.21427965, 3.11312909, 4.44952669, 7.04064255, 10., np.inf]
-        etas = [1.5, 2.28675771, 2.5121839 , 2.68080544, 3.15]#[1.65, 2.15, 2.75]
+        energy_bins = [0., 2.21427965, 3.11312909, 4.44952669, 7.04064255, 10., np.inf]
+        eta_bins = [1.5, 2.28675771, 2.5121839 , 2.68080544, 3.15]#[1.65, 2.15, 2.75]
         aucs = {}
-        val_etas = val_dataset[:]["features"][0][:, 3] # index 3 is multi_eta
-        val_energies = val_dataset[:]["features"][0][:, 2] # index 2 is multi_en
-        for b_ens in range(len(ens)-1):
-            for b_etas in range(len(etas)-1):
-                sel = (abs(val_etas)>etas[b_etas]) & (abs(val_etas)<etas[b_etas+1]) & (val_energies>ens[b_ens]) & (val_energies<ens[b_ens+1])
+        val_etas = val_dataset["features"][:, featureNames.index("multi_eta")].cpu()
+        val_energies = val_dataset["features"][:, featureNames.index("multi_en")].cpu()
+        for b_ens in range(len(energy_bins)-1):
+            for b_etas in range(len(eta_bins)-1):
+                sel = (abs(val_etas)>eta_bins[b_etas]) & (abs(val_etas)<eta_bins[b_etas+1]) & (val_energies>energy_bins[b_ens]) & (val_energies<energy_bins[b_ens+1])
                 if torch.any(sel):
                     fpr, tpr, threshold = roc_curve(genmatching[sel],pred[sel])
                     auc1 = auc(fpr, tpr)
                 else:
                     auc1 = 0.
                 aucs[b_ens,b_etas] = auc1
-                self.writer.add_scalar("Validation_ROC_binned_AUC/eta[%.2f,%.2f]_En" %(etas[b_etas], etas[b_etas+1]) + '[%.1f,%.1f]' %(ens[b_ens], ens[b_ens+1]), auc1, self.current_epoch)
+                self.writer.add_scalar("Validation_ROC_binned_AUC/eta[%.2f,%.2f]_En" %(eta_bins[b_etas], eta_bins[b_etas+1]) + '[%.1f,%.1f]' %(energy_bins[b_ens], energy_bins[b_ens+1]), auc1, self.current_epoch)
 
              
         indices = np.array(list(aucs.keys()))
@@ -252,11 +316,11 @@ class Trainer:
 
         # Set the ticks for x-axis and y-axis
         x_ticks = np.arange(n_cols)  
-        x_labels = ['[%.2f,%.2f]' %(etas[b], etas[b+1]) for b in range(len(etas)-1)]  # Custom text labels
+        x_labels = ['[%.2f,%.2f]' %(eta_bins[b], eta_bins[b+1]) for b in range(len(eta_bins)-1)]  # Custom text labels
         plt.xticks(x_ticks, x_labels)
 
         y_ticks = np.arange(n_rows)  # Y-axis tick positions
-        y_labels = ['[%.1f,%.1f]' %(ens[b], ens[b+1]) for b in range(len(ens)-1)][::-1]  # Custom text labels
+        y_labels = ['[%.1f,%.1f]' %(energy_bins[b], energy_bins[b+1]) for b in range(len(energy_bins)-1)][::-1]  # Custom text labels
         plt.yticks(y_ticks, y_labels)
 
         # Hide the x-axis and y-axis scales
@@ -309,14 +373,14 @@ class Trainer:
             sampler = None
             shuffle = True
         train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=shuffle, sampler=sampler, **dataloader_kwargs)
-        val_dataloader = DataLoader(val_dataset, batch_size=100000, **dataloader_kwargs)
+        #val_dataloader = DataLoader(val_dataset, batch_size=100000, **dataloader_kwargs)
         for epoch in tqdm(range(nepochs)):
             self.current_epoch += 1
             self.train_loop(train_dataloader)
             tqdm.write(f"train_loss = {self.train_losses_perEpoch[-1]}")
             self.writer.add_scalar("Loss/train", self.train_losses_perEpoch[-1], epoch)
 
-            self.val_loop(val_dataloader, val_dataset)
+            self.val_loop(val_dataset)
             tqdm.write(f"val_loss = {self.val_losses_perEpoch[-1]}")
             self.writer.add_scalar("Loss/val", self.val_losses_perEpoch[-1], epoch)
 
@@ -353,6 +417,6 @@ if __name__ == "__main__":
     if args.resume:
         trainer.reloadModel(args.resume)
     print("Loading dataset...")
-    train_dataset, val_dataset = makeDatasetsTrainVal(args.input)
+    train_dataset, val_dataset = makeDatasetsTrainVal_fromCache(args.input, device_valDataset=device)
     print("Dataset loaded into RAM")
     trainer.full_train(train_dataset, val_dataset, nepochs=args.nEpochs, batch_size=args.batchSize, weightSamples=args.weightSamples)
