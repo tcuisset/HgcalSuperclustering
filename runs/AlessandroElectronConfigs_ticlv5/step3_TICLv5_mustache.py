@@ -282,6 +282,7 @@ process.FEVTDEBUGHLToutput.outputCommands = cms.untracked.vstring(
     # "keep *_particleFlowBlock_*_*",
 
     "keep *_ecalDrivenGsfElectronsHGC_*_*",
+    "keep *_ecalDrivenGsfElectronCoresHGC_*_*",
     "keep *_cleanedEcalDrivenGsfElectronsHGC_*_*",
     "keep *_patElectronsHGC_*_*",
 )
