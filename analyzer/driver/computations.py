@@ -1,5 +1,6 @@
 from typing import Iterable, Callable
 import functools
+from pathlib import Path
 
 import pandas as pd
 import hist
@@ -30,6 +31,7 @@ class DataframeComputation(Computation):
         df = pd.concat(results)
         if store is not None:
             assert (self.key is not None), "To store, key should be set"
+            Path(store).mkdir(exist_ok=True)
             df.to_pickle(store + "/" + self.key + ".pkl.gz")
         return df
 
