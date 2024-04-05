@@ -71,7 +71,7 @@ class FeatureScaler(nn.Module):
 
 
 
-def makeModelLoss(dropout=0.2):
+def makeModel(dropout=0.2):
     model = nn.Sequential(
         FeatureScaler(),
         nn.Linear(featureCount, 100),
@@ -86,22 +86,28 @@ def makeModelLoss(dropout=0.2):
         nn.Linear(100, 1),
         nn.Sigmoid()
     )
-    loss = nn.BCELoss()
-    return model, loss
+    return model
 
 class BaseLoss:
+    trainingLossType:str = None
     def compute_loss_train(self, pred:torch.Tensor, train_batch:dict[str, tuple[torch.Tensor]]) -> torch.Tensor:
         """ Computes loss for a training batch
         pred is the tensor of predictions from the DNN
         train_batch is dict with keys features, genmatching, etc """
         raise NotImplementedError()
 
-    def val_eval(self, pred:torch.Tensor, val_dataset:dict[str, torch.Tensor]) -> torch.Tensor:
+    def compute_loss_eval(self, pred:torch.Tensor, val_dataset:dict[str, torch.Tensor]) -> torch.Tensor:
         """ Computes loss for the validation dataset """
         raise NotImplementedError()
+    
+    def switchPredIfNeeded(self, pred:torch.Tensor) -> torch.Tensor:
+        """ Return network prediction such that better is close to 1 and worse close to 0 """
+        return pred # default implementation
 
 class BinaryLoss(BaseLoss):
     """ Loss doing binary classification based on genmatching feature in batches """
+    trainingLossType = "binary"
+
     def __init__(self, loss_module:nn.Module|None=None) -> None:
         """ Default loss is BCELoss (binary cross-entropy) """
         super().__init__()
@@ -110,49 +116,42 @@ class BinaryLoss(BaseLoss):
     def compute_loss_train(self, pred:torch.Tensor, train_batch:dict[str, tuple[torch.Tensor]]) -> torch.Tensor:
         return self.loss_module(pred, train_batch["genmatching"][0].to(pred.device))
     
-    def val_eval(self, pred:torch.Tensor, val_dataset:dict[str, torch.Tensor]) -> torch.Tensor:
+    def compute_loss_eval(self, pred:torch.Tensor, val_dataset:dict[str, torch.Tensor]) -> torch.Tensor:
         return self.loss_module(pred, val_dataset["genmatching"]) # normally val_dataset is on gpu
 
 class ContinuousAssociationScoreLoss(BaseLoss):
     """ Loss targeting the association score seed-candidate instead of binary genMatched/notGenMatched
     Avoids having to set a working point for genmatching before training
     """
+    trainingLossType = "continuousAssociationScore"
+
     def __init__(self, loss_module:nn.Module|None=None) -> None:
-        """ Default loss is BCELoss (binary cross-entropy) """
+        """ Default loss is MSELoss (mean squared error, L2 loss) """
         super().__init__()
         self.loss_module = loss_module if loss_module is not None else nn.MSELoss()
     
     def compute_loss_train(self, pred:torch.Tensor, train_batch:dict[str, tuple[torch.Tensor]]) -> torch.Tensor:
-        return self.loss_module(pred, train_batch["genmatching"][0].to(pred.device))
+        return self.loss_module(pred, train_batch["assocScore_training"][0].to(pred.device))
     
-    def val_eval(self, pred:torch.Tensor, val_dataset:dict[str, torch.Tensor]) -> torch.Tensor:
-        return self.loss_module(pred, val_dataset["genmatching"]) # normally val_dataset is on gpu
+    def compute_loss_eval(self, pred:torch.Tensor, val_dataset:dict[str, torch.Tensor]) -> torch.Tensor:
+        return self.loss_module(pred, val_dataset["assocScore_training"]) # normally val_dataset is on gpu
 
-# def makeDatasetsTrainVal(inputFolder:str, device="cpu", useCache=True):
-#     """ Set device to gpu only if you want to move the whole dataset to GPU then use num_workers=0 in DataLoader. THis is usually slower than keeping tensors on CPU then using num_workers > 1
-#     useCache : if True, will use the cached version of the dataset if found
-#     """
-#     cached_dataset_path = Path("/".join(inputFolder.split("/")[:-1])) / "cached_torch_dataset.pt"
-#     if useCache and cached_dataset_path.is_file():
-#         dataset_torch = torch.load(cached_dataset_path)
-#     else:
-#         dataset_ak = makeTargetBinaryBinary(selectSeedOnly(zipDataset(loadDataset_ak(inputFolder))))
-#         dataset_torch = makeTorchDataset(makeFeatures(dataset_ak,  ['DeltaEtaBaryc', 'DeltaPhiBaryc', 'multi_en', 'multi_eta', 'multi_pt', 'seedEta','seedPhi','seedEn', 'seedPt', 'theta', 'theta_xz_seedFrame', 'theta_yz_seedFrame', 'theta_xy_cmsFrame', 'theta_yz_cmsFrame', 'theta_xz_cmsFrame', 'explVar', 'explVarRatio']),
-#                         ak.to_numpy(ak.flatten(dataset_ak.genMatching)), device=device)
-#         torch.save(dataset_torch, cached_dataset_path)
-
-#     train_dataset, val_dataset = torch.utils.data.random_split(dataset_torch, [0.7, 0.3])
-#     return train_dataset, val_dataset
-
+    def switchPredIfNeeded(self, pred:torch.Tensor) -> torch.Tensor:
+        """ Return network prediction such that better is close to 1 and worse close to 0 
+        Swaps the weird TICL association score around so we can compare easily the DNN preds with BinaryLoss
+        """
+        return 1-pred
 
 
 class Trainer:
-    def __init__(self, model:nn.Module, loss_fn:nn.Module, log_output=None, run_name=None, device="cpu"):
+    def __init__(self, model:nn.Module, loss:BaseLoss, log_output=None, run_name=None, device="cpu", profiler=None):
+        """ profiler : can be used with pytorch profiler """
         self.model = model
-        self.loss_fn = loss_fn
+        self.loss = loss
         self.optimizer = torch.optim.Adam(self.model.parameters())
-        self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, "min", patience=30, factor=0.5)
+        self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, "min", patience=50, factor=0.5)
         self.device = device
+        self.profiler = profiler
         if log_output is None:
             log_output = Path.cwd()
         else:
@@ -171,11 +170,16 @@ class Trainer:
         self.val_losses_perEpoch = []
 
         self.current_epoch = 0
+
+        # Validation settings
+        self.val_dnn_wps = [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 0.98]
+        self.val_energy_bins = [0., 2.21427965, 3.11312909, 4.44952669, 7.04064255, 10., np.inf]
+        self.val_eta_bins = [1.5, 2.28675771, 2.5121839 , 2.68080544, 3.15]#[1.65, 2.15, 2.75]
     
     def train_step(self, batch):
         """ Train for one batch """
         pred = torch.squeeze(self.model(batch["features"][0].to(self.device)), dim=1)
-        loss = self.loss_fn(pred, batch["genmatching"][0].to(self.device))
+        loss = self.loss.compute_loss_train(pred, batch)
 
         loss.backward()
         self.optimizer.step()
@@ -200,7 +204,7 @@ class Trainer:
             genmatching = val_dataset["genmatching"]
             pred = torch.squeeze(self.model(feats), dim=1)
 
-            loss = self.loss_fn(pred, genmatching)
+            loss = self.loss.compute_loss_eval(pred, val_dataset)
             self.val_losses_perEpoch.append(loss.item()/len(genmatching))
             #self.val_batch_sizes_currentEpoch.append(feats.shape[0])
 
@@ -208,9 +212,10 @@ class Trainer:
             #return {"pred" : pred.cpu(), "genmatching" : genmatching.cpu(), "pred_genMatched" : pred[genmatching==1].cpu(), "pred_nonGenMatched" : pred[genmatching==0].cpu()}
     
     def val_loop(self, val_dataset:dict[str, torch.Tensor]):
+
         with torch.no_grad():
-            pred = self.val_evaluateModel(val_dataset)
-            genmatching = val_dataset["genmatching"]
+            pred = self.loss.switchPredIfNeeded(self.val_evaluateModel(val_dataset))
+            genmatching = val_dataset["genmatching"] # we can use genmatching var even for non-binary loss
             pred_genMatched = pred[genmatching==1]
             pred_nonGenMatched = pred[genmatching==0]
             self.writer.add_histogram("Validation/pred_genMatched", pred_genMatched, self.current_epoch)
@@ -219,22 +224,22 @@ class Trainer:
             # computing sum of superclustered energy per event (this part of the code assumes there is only one CaloParticle per event)
             def superclusteredEnergyForWP(wp:float):
                 """ Compute for each event the sum of energy superclustered by the DNN at the given WP """
-                return torch.scatter_add(torch.zeros(torch.max(val_dataset["eventIndex"])+1, device=val_dataset["eventIndex"].device), 0, val_dataset["eventIndex"], val_dataset["features"][:, featureNames.index("multi_en")]*(pred >= wp))
+                return val_dataset["seedEnergy_perEvent"] + torch.scatter_add(torch.zeros(torch.max(val_dataset["eventIndex"])+1, device=val_dataset["eventIndex"].device), 0, val_dataset["eventIndex"], val_dataset["features"][:, featureNames.index("multi_en")]*(pred >= wp))
 
-            def gaussianSigmaApprox(energyPerEvent:torch.Tensor):
+            def gaussianSigmaApprox(ratio_energyPerEventOverCP:torch.Tensor):
                 """ Approximate sigma of energySupercls/CP_energy using quantiles to avoid tails """
-                ratio = energyPerEvent / val_dataset["caloParticleEnergy_perEvent"]
                 p, sigma_factor = 0.95, 2 # 2 sigma on either side of peak. Can also be set to 0.68, 1 for 1sigma on each side
-                quantiles = torch.quantile(ratio, torch.tensor([0.5-p/2, 0.5+p/2], device=energyPerEvent.device)) # quantiles corresponding to mu-sigma_factor*sigma, mu+sigma_factor*sigma of a gaussian
-                return torch.mean(ratio).cpu(), ((quantiles[1] - quantiles[0])/(2*sigma_factor)).cpu()
+                quantiles = torch.quantile(ratio_energyPerEventOverCP, torch.tensor([0.5-p/2, 0.5+p/2], device=ratio_energyPerEventOverCP.device)) # quantiles corresponding to mu-sigma_factor*sigma, mu+sigma_factor*sigma of a gaussian
+                return torch.mean(ratio_energyPerEventOverCP).cpu(), ((quantiles[1] - quantiles[0])/(2*sigma_factor)).cpu()
 
             gaussianSigmaApprox_res = {}
             mu_res = {}
             sigmaOverMu_approx_res = {}
-            dnn_wps = [0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
-            for dnn_wp in dnn_wps:
+            
+            for dnn_wp in self.val_dnn_wps:
                 superclsEnergy = superclusteredEnergyForWP(dnn_wp)
-                mu, sigma = gaussianSigmaApprox(superclsEnergy)
+                superclsEnergy_ratio = superclsEnergy / val_dataset["caloParticleEnergy_perEvent"]
+                mu, sigma = gaussianSigmaApprox(superclsEnergy_ratio)
                 key = f"WP={dnn_wp}"
                 gaussianSigmaApprox_res[key] = sigma
                 mu_res[key] = mu
@@ -242,6 +247,19 @@ class Trainer:
                 self.writer.add_scalar(f"Val_Sigma_approx/{key}", sigma, self.current_epoch)
                 self.writer.add_scalar(f"Val_Mu/{key}", mu, self.current_epoch)
                 self.writer.add_scalar(f"Val_SigmaOverMu_approx/{key}", sigma/mu, self.current_epoch)
+
+                if self.current_epoch % 1 == 0:
+                    self.writer.add_histogram(f"Val_superclsEnergy/WP={dnn_wp}", superclsEnergy, self.current_epoch)
+                    self.writer.add_histogram(f"Val_superclsEnergy_ratioOverCP/WP={dnn_wp}", superclsEnergy_ratio, self.current_epoch)
+            
+            if self.current_epoch % 5 == 0:
+                plt.plot(sigmaOverMu_approx_res.keys(), sigmaOverMu_approx_res.values())
+                # plt.semilogy()
+                plt.ylabel("SigmaOverMu")
+                plt.xlabel("DNN WP")
+                # plt.ylim(0.8,1)
+                plt.grid(True)
+                self.writer.add_figure("Validation_sigmaScans/SigmaOverMu_scan", plt.gcf(), self.current_epoch)
                 
         ## Accuracy
         def computeAccuracy(cut):
@@ -252,6 +270,8 @@ class Trainer:
             return (tp+tn)/(tp+tn+fp+fn)
         self.writer.add_scalar("Validation/accuracy_near0", computeAccuracy(0.05), self.current_epoch)
         self.writer.add_scalar("Validation/accuracy_near1", computeAccuracy(1.-0.05), self.current_epoch)
+
+        self.writer.add_pr_curve("PR_curve", genmatching, pred, self.current_epoch)
 
         if self.current_epoch % 5 != 0:
             return
@@ -272,21 +292,19 @@ class Trainer:
         self.writer.add_scalar("Validation/ROC_AUC", auc1, self.current_epoch)
 
         ## ROC curve in eta and en bins
-        energy_bins = [0., 2.21427965, 3.11312909, 4.44952669, 7.04064255, 10., np.inf]
-        eta_bins = [1.5, 2.28675771, 2.5121839 , 2.68080544, 3.15]#[1.65, 2.15, 2.75]
         aucs = {}
         val_etas = val_dataset["features"][:, featureNames.index("multi_eta")].cpu()
         val_energies = val_dataset["features"][:, featureNames.index("multi_en")].cpu()
-        for b_ens in range(len(energy_bins)-1):
-            for b_etas in range(len(eta_bins)-1):
-                sel = (abs(val_etas)>eta_bins[b_etas]) & (abs(val_etas)<eta_bins[b_etas+1]) & (val_energies>energy_bins[b_ens]) & (val_energies<energy_bins[b_ens+1])
+        for b_ens in range(len(self.val_energy_bins)-1):
+            for b_etas in range(len(self.val_eta_bins)-1):
+                sel = (abs(val_etas)>self.val_eta_bins[b_etas]) & (abs(val_etas)<self.val_eta_bins[b_etas+1]) & (val_energies>self.val_energy_bins[b_ens]) & (val_energies<self.val_energy_bins[b_ens+1])
                 if torch.any(sel):
                     fpr, tpr, threshold = roc_curve(genmatching[sel],pred[sel])
                     auc1 = auc(fpr, tpr)
                 else:
                     auc1 = 0.
                 aucs[b_ens,b_etas] = auc1
-                self.writer.add_scalar("Validation_ROC_binned_AUC/eta[%.2f,%.2f]_En" %(eta_bins[b_etas], eta_bins[b_etas+1]) + '[%.1f,%.1f]' %(energy_bins[b_ens], energy_bins[b_ens+1]), auc1, self.current_epoch)
+                self.writer.add_scalar("Validation_ROC_binned_AUC/eta[%.2f,%.2f]_En" %(self.val_eta_bins[b_etas], self.val_eta_bins[b_etas+1]) + '[%.1f,%.1f]' %(self.val_energy_bins[b_ens], self.val_energy_bins[b_ens+1]), auc1, self.current_epoch)
 
              
         indices = np.array(list(aucs.keys()))
@@ -316,11 +334,11 @@ class Trainer:
 
         # Set the ticks for x-axis and y-axis
         x_ticks = np.arange(n_cols)  
-        x_labels = ['[%.2f,%.2f]' %(eta_bins[b], eta_bins[b+1]) for b in range(len(eta_bins)-1)]  # Custom text labels
+        x_labels = ['[%.2f,%.2f]' %(self.val_eta_bins[b], self.val_eta_bins[b+1]) for b in range(len(self.val_eta_bins)-1)]  # Custom text labels
         plt.xticks(x_ticks, x_labels)
 
         y_ticks = np.arange(n_rows)  # Y-axis tick positions
-        y_labels = ['[%.1f,%.1f]' %(energy_bins[b], energy_bins[b+1]) for b in range(len(energy_bins)-1)][::-1]  # Custom text labels
+        y_labels = ['[%.1f,%.1f]' %(self.val_energy_bins[b], self.val_energy_bins[b+1]) for b in range(len(self.val_energy_bins)-1)][::-1]  # Custom text labels
         plt.yticks(y_ticks, y_labels)
 
         # Hide the x-axis and y-axis scales
@@ -359,21 +377,41 @@ class Trainer:
 
     
     def full_train(self, train_dataset, val_dataset, nepochs=10, batch_size=8000, weightSamples=False):
+        val_dataset = {key : tensor.to(self.device) for key, tensor in val_dataset.items()}
         if self.device != "cpu":
             dataloader_kwargs = dict(num_workers=10, pin_memory=True, pin_memory_device=self.device)
         else:
             dataloader_kwargs = dict()
         if weightSamples:
             # weight samples so we are equally likely to train on genmatched seed-candidate pairs than not
-            gen = train_dataset[:]["genmatching"][0]
+            if self.loss.trainingLossType == "binary":
+                gen = train_dataset[:]["genmatching"][0] == 1
+            else:
+                # Put 0.2 as something vaguely equivalent to what is done in binary case
+                gen = train_dataset[:]["assocScore_training"][0] <= 0.2
             # using replacement=True is important as otherwise the sampler runs out of genmatched samples and just spits out batches with only non-genmatched pairs, which is very bad for training !
-            sampler = WeightedRandomSampler(torch.where(gen==1, torch.sum(gen==0)/torch.sum(gen==1), 1.), gen.shape[0], replacement=True)
+            sampler = WeightedRandomSampler(torch.where(gen, torch.sum(~gen)/torch.sum(gen), 1.), gen.shape[0], replacement=True)
             shuffle = False
         else:
             sampler = None
             shuffle = True
         train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=shuffle, sampler=sampler, **dataloader_kwargs)
         #val_dataloader = DataLoader(val_dataset, batch_size=100000, **dataloader_kwargs)
+
+                
+        self.writer.add_custom_scalars({
+            "Validation_SigmaAndMu" : {
+                "Sigma_approx" : ["Multiline", [f"Val_Sigma_approx/WP={dnn_wp}" for dnn_wp in self.val_dnn_wps]], 
+                "Mu" : ["Multiline", [f"Val_Mu/WP={dnn_wp}" for dnn_wp in self.val_dnn_wps]],
+                "SigmaOverMu_approx" : ["Multiline", [f"Val_SigmaOverMu_approx/WP={dnn_wp}" for dnn_wp in self.val_dnn_wps]],
+            },
+            "Validation_ROC" : {
+                "binned_AUC" : ["Multiline", ["Validation_ROC_binned_AUC/eta[%.2f,%.2f]_En" %(self.val_eta_bins[b_etas], self.val_eta_bins[b_etas+1]) + '[%.1f,%.1f]' %(self.val_energy_bins[b_ens], self.val_energy_bins[b_ens+1]) 
+                                            for b_ens in range(len(self.val_energy_bins)-1) for b_etas in range(len(self.val_eta_bins)-1)]]
+            }
+        })
+
+        
         for epoch in tqdm(range(nepochs)):
             self.current_epoch += 1
             self.train_loop(train_dataloader)
@@ -408,15 +446,22 @@ if __name__ == "__main__":
     parser.add_argument("-e", "--nEpochs", help="Number of epochs to train for", default=10, type=int)
     parser.add_argument("-b", "--batchSize", help="Batch size", default=8000, type=int)
     parser.add_argument("--dropout", help="Dropout probability", default=0.2, type=float)
-    parser.add_argument("--weightSamples", help="weight samples so we are equally likely to train on genmatched seed-candidate pairs than not", default=False, action="store_true")
+    parser.add_argument("--weightSamples", help="weight samples so we are equally likely to train on genmatched seed-candidate pairs than not", default=True, action="store_true")
+    parser.add_argument("--trainingLossType", help="Type of training loss", choices=["binary", "continuousAssociationScore"], default="binary")
     args = parser.parse_args()
 
     device = args.device
-    model, loss = makeModelLoss(dropout=args.dropout)
+    model = makeModel(dropout=args.dropout)
+    if args.trainingLossType == "binary":
+        loss = BinaryLoss()
+    elif args.trainingLossType == "continuousAssociationScore":
+        loss = ContinuousAssociationScoreLoss()
+    else:
+        raise ValueError()
     trainer = Trainer(model.to(device), loss, device=device, log_output=args.output)
     if args.resume:
         trainer.reloadModel(args.resume)
     print("Loading dataset...")
-    train_dataset, val_dataset = makeDatasetsTrainVal_fromCache(args.input, device_valDataset=device)
+    datasets = makeDatasetsTrainVal_fromCache(args.input, device_valDataset=device, trainingLossType=args.trainingLossType)
     print("Dataset loaded into RAM")
-    trainer.full_train(train_dataset, val_dataset, nepochs=args.nEpochs, batch_size=args.batchSize, weightSamples=args.weightSamples)
+    trainer.full_train(datasets["trainDataset"], datasets["valDataset"], nepochs=args.nEpochs, batch_size=args.batchSize, weightSamples=args.weightSamples)

@@ -11,7 +11,7 @@ dependencies:
  - numpy
  - scipy
  - uproot=5.*
- - fsspec-xrootd
+ - fsspec-xrootd # for uproot reading from xrootd
  - awkward=2.*
  - hist
  - tqdm
