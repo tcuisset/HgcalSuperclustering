@@ -7,8 +7,11 @@ import awkward as ak
 from tqdm.auto import tqdm
 import argparse
 from pathlib import Path
+import collections
 import numpy as np
 from sklearn.metrics import roc_curve, auc, confusion_matrix
+import matplotlib
+matplotlib.rcParams['figure.figsize'] = (6, 5)
 import matplotlib.pyplot as plt
 import copy
 
@@ -90,6 +93,8 @@ def makeModel(dropout=0.2):
 
 class BaseLoss:
     trainingLossType:str = None
+    shouldSwapPrediction:bool = False
+    """ If True, network output is closeTo1 = bad, closeTo0 = good (aka weird TICL assoc score). If False, network output is closeTo1 = good"""
     def compute_loss_train(self, pred:torch.Tensor, train_batch:dict[str, tuple[torch.Tensor]]) -> torch.Tensor:
         """ Computes loss for a training batch
         pred is the tensor of predictions from the DNN
@@ -124,6 +129,7 @@ class ContinuousAssociationScoreLoss(BaseLoss):
     Avoids having to set a working point for genmatching before training
     """
     trainingLossType = "continuousAssociationScore"
+    shouldSwapPrediction = True
 
     def __init__(self, loss_module:nn.Module|None=None) -> None:
         """ Default loss is MSELoss (mean squared error, L2 loss) """
@@ -172,8 +178,10 @@ class Trainer:
         self.current_epoch = 0
 
         # Validation settings
-        self.val_dnn_wps = [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 0.98]
+        self.val_dnn_wps = [0.3, 0.5, 0.7, 0.8, 0.85, 0.9, 0.93, 0.95, 0.97, 0.98, 0.99, 0.992, 0.994, 0.996, 0.998, 1.]
         self.val_energy_bins = [0., 2.21427965, 3.11312909, 4.44952669, 7.04064255, 10., np.inf]
+        """ energy of candidate """
+        self.val_seed_energy_bins = [0., 40., 120,  200, 300, np.inf]
         self.val_eta_bins = [1.5, 2.28675771, 2.5121839 , 2.68080544, 3.15]#[1.65, 2.15, 2.75]
     
     def train_step(self, batch):
@@ -193,6 +201,7 @@ class Trainer:
         self.model.train()
         for batch_id, batch in enumerate(train_dataloader):
             self.train_step(batch)
+        # assumes train losses are the mean of individual paris
         self.train_losses_perEpoch.append(np.average(self.train_losses_currentEpoch, weights=self.train_batch_sizes_currentEpoch))
         self.train_losses_currentEpoch = []
         self.train_batch_sizes_currentEpoch = []
@@ -205,21 +214,44 @@ class Trainer:
             pred = torch.squeeze(self.model(feats), dim=1)
 
             loss = self.loss.compute_loss_eval(pred, val_dataset)
-            self.val_losses_perEpoch.append(loss.item()/len(genmatching))
-            #self.val_batch_sizes_currentEpoch.append(feats.shape[0])
 
-            return pred
+            return pred, loss.item()
             #return {"pred" : pred.cpu(), "genmatching" : genmatching.cpu(), "pred_genMatched" : pred[genmatching==1].cpu(), "pred_nonGenMatched" : pred[genmatching==0].cpu()}
     
-    def val_loop(self, val_dataset:dict[str, torch.Tensor]):
-
+    def val_loop(self, val_dataset_gpu:dict[str, torch.Tensor], val_dataset_cpu:dict[str, torch.Tensor], val_dataset_gpu_weighted:dict[str, torch.Tensor]|None=None):
+        """ Run validation for the current epoch
+        Parameters : 
+            - val_dataset_gpu_weighted : Validation dataset that reproduces the same weighted sampling as in training, to be able to compare validation loss to training loss
+                                set to None in case there is no weighting to be done
+        """
+        frequency_val = 1
+        val_dataset = val_dataset_cpu
         with torch.no_grad():
-            pred = self.loss.switchPredIfNeeded(self.val_evaluateModel(val_dataset))
-            genmatching = val_dataset["genmatching"] # we can use genmatching var even for non-binary loss
+            pred, loss = self.loss.switchPredIfNeeded(self.val_evaluateModel(val_dataset_gpu))
+            pred = pred.cpu()
+            self.val_losses_perEpoch.append(loss)
+            self.writer.add_scalar("Loss/val", self.val_losses_perEpoch[-1], self.current_epoch)
+
+            if val_dataset_gpu_weighted is not None:
+                pred_weighted, loss_weighted = self.loss.switchPredIfNeeded(self.val_evaluateModel(val_dataset_gpu_weighted))
+                self.writer.add_scalar("Loss/val_weighted", loss_weighted, self.current_epoch)
+
+
+            if self.current_epoch % frequency_val != 0:
+                return
+            genmatching = val_dataset_cpu["genmatching"] # we can use genmatching var even for non-binary loss
             pred_genMatched = pred[genmatching==1]
             pred_nonGenMatched = pred[genmatching==0]
+
+            val_etas = val_dataset["features"][:, featureNames.index("multi_eta")]
+            val_energies = val_dataset["features"][:, featureNames.index("multi_en")]
+            
             self.writer.add_histogram("Validation/pred_genMatched", pred_genMatched, self.current_epoch)
             self.writer.add_histogram("Validation/pred_nonGenMatched", pred_nonGenMatched, self.current_epoch)
+            for b_ens in range(len(self.val_energy_bins)-1):
+                sel = (val_energies>self.val_energy_bins[b_ens]) & (val_energies<self.val_energy_bins[b_ens+1])
+                self.writer.add_histogram(f"Pred_genMatched_perEnergy/{self.val_energy_bins[b_ens]:.1f},{self.val_energy_bins[b_ens+1]:.1f}", pred[(genmatching==1)&(sel)], self.current_epoch)
+                self.writer.add_histogram(f"Pred_nonGenMatched_perEnergy/{self.val_energy_bins[b_ens]:.1f},{self.val_energy_bins[b_ens+1]:.1f}", pred[(genmatching==0)&(sel)], self.current_epoch)
 
             # computing sum of superclustered energy per event (this part of the code assumes there is only one CaloParticle per event)
             def superclusteredEnergyForWP(wp:float):
@@ -232,124 +264,158 @@ class Trainer:
                 quantiles = torch.quantile(ratio_energyPerEventOverCP, torch.tensor([0.5-p/2, 0.5+p/2], device=ratio_energyPerEventOverCP.device)) # quantiles corresponding to mu-sigma_factor*sigma, mu+sigma_factor*sigma of a gaussian
                 return torch.mean(ratio_energyPerEventOverCP).cpu(), ((quantiles[1] - quantiles[0])/(2*sigma_factor)).cpu()
 
-            gaussianSigmaApprox_res = {}
-            mu_res = {}
-            sigmaOverMu_approx_res = {}
+            # results dict, WP -> energyBin -> value
+            # energyBin can be "inclusive"
+            gaussianSigmaApprox_res = collections.defaultdict(dict)
+            mu_res = collections.defaultdict(dict)
+            sigmaOverMu_approx_res = collections.defaultdict(dict)
+
+            sigmaOverMu_sum = dict() # sum of sigma/mu for all energy bins, index is WP
             
             for dnn_wp in self.val_dnn_wps:
                 superclsEnergy = superclusteredEnergyForWP(dnn_wp)
                 superclsEnergy_ratio = superclsEnergy / val_dataset["caloParticleEnergy_perEvent"]
-                mu, sigma = gaussianSigmaApprox(superclsEnergy_ratio)
-                key = f"WP={dnn_wp}"
-                gaussianSigmaApprox_res[key] = sigma
-                mu_res[key] = mu
-                sigmaOverMu_approx_res[key] = sigma/mu
-                self.writer.add_scalar(f"Val_Sigma_approx/{key}", sigma, self.current_epoch)
-                self.writer.add_scalar(f"Val_Mu/{key}", mu, self.current_epoch)
-                self.writer.add_scalar(f"Val_SigmaOverMu_approx/{key}", sigma/mu, self.current_epoch)
 
-                if self.current_epoch % 1 == 0:
+                mu, sigma = gaussianSigmaApprox(superclsEnergy_ratio)
+                WP_str = f"WP={dnn_wp}"
+                gaussianSigmaApprox_res[dnn_wp]["inclusive"] = sigma
+                mu_res[dnn_wp]["inclusive"] = mu
+                sigmaOverMu_approx_res[dnn_wp]["inclusive"] = sigma/mu
+                self.writer.add_scalar(f"Val_Sigma_approx/{WP_str}", sigma, self.current_epoch)
+                self.writer.add_scalar(f"Val_Mu/{WP_str}", mu, self.current_epoch)
+                self.writer.add_scalar(f"Val_SigmaOverMu_approx/{WP_str}", sigma/mu, self.current_epoch)
+
+                if self.current_epoch % (frequency_val*2) == 0:
                     self.writer.add_histogram(f"Val_superclsEnergy/WP={dnn_wp}", superclsEnergy, self.current_epoch)
                     self.writer.add_histogram(f"Val_superclsEnergy_ratioOverCP/WP={dnn_wp}", superclsEnergy_ratio, self.current_epoch)
+                
+                sigmaOverMu_sum[dnn_wp] = 0. 
+                for b_ens in range(len(self.val_seed_energy_bins)-1):
+                    sel = (val_dataset["seedEnergy_perEvent"]>self.val_seed_energy_bins[b_ens]) & (val_dataset["seedEnergy_perEvent"]<self.val_seed_energy_bins[b_ens+1])
+                    mu, sigma = gaussianSigmaApprox(superclsEnergy_ratio[sel])
+                    gaussianSigmaApprox_res[dnn_wp][b_ens] = sigma
+                    mu_res[dnn_wp][b_ens] = mu
+                    sigmaOverMu_approx_res[dnn_wp][b_ens] = sigma/mu
+                    self.writer.add_scalar(f"Val_Sigma_approx_{self.val_seed_energy_bins[b_ens]}-{self.val_seed_energy_bins[b_ens+1]}/{WP_str}", sigma, self.current_epoch)
+                    self.writer.add_scalar(f"Val_Mu_{self.val_seed_energy_bins[b_ens]}-{self.val_seed_energy_bins[b_ens+1]}/{WP_str}", mu, self.current_epoch)
+                    self.writer.add_scalar(f"Val_SigmaOverMu_approx_{self.val_seed_energy_bins[b_ens]}-{self.val_seed_energy_bins[b_ens+1]}/{WP_str}", sigma/mu, self.current_epoch)
+                    sigmaOverMu_sum[dnn_wp] += sigma/mu
+                self.writer.add_scalar(f"Val_SigmaOverMu_approx/{WP_str}_sumEnergyBins", sigmaOverMu_sum[dnn_wp], self.current_epoch)
+
+            # finding best WP
+            best_wp = min(sigmaOverMu_sum, key=sigmaOverMu_sum.get)
+            self.writer.add_scalar(f"Validation/bestWP", best_wp, self.current_epoch)
+            # resolution at the best WP
+            self.writer.add_scalar(f"Val_Sigma_approx/BestWP", gaussianSigmaApprox_res[best_wp]["inclusive"], self.current_epoch)
+            self.writer.add_scalar(f"Val_Mu/BestWP", mu_res[best_wp]["inclusive"], self.current_epoch)
+            self.writer.add_scalar(f"Val_SigmaOverMu_approx/BestWP", sigmaOverMu_approx_res[best_wp]["inclusive"], self.current_epoch)
+            self.writer.add_scalar(f"Val_SigmaOverMu_approx/BestWP_sumEnergyBins", sigmaOverMu_sum[best_wp], self.current_epoch)
+            # in energy bins
+            for b_ens in range(len(self.val_seed_energy_bins)-1):
+                self.writer.add_scalar(f"Val_Sigma_approx_{self.val_seed_energy_bins[b_ens]}-{self.val_seed_energy_bins[b_ens+1]}/BestWP", gaussianSigmaApprox_res[best_wp][b_ens], self.current_epoch)
+                self.writer.add_scalar(f"Val_Mu_{self.val_seed_energy_bins[b_ens]}-{self.val_seed_energy_bins[b_ens+1]}/BestWP", mu_res[best_wp][b_ens], self.current_epoch)
+                self.writer.add_scalar(f"Val_SigmaOverMu_approx_{self.val_seed_energy_bins[b_ens]}-{self.val_seed_energy_bins[b_ens+1]}/BestWP", sigmaOverMu_approx_res[best_wp][b_ens], self.current_epoch)
+
             
-            if self.current_epoch % 5 == 0:
-                plt.plot(sigmaOverMu_approx_res.keys(), sigmaOverMu_approx_res.values())
+            if self.current_epoch % (frequency_val*2) == 0:
+                plt.plot(self.val_dnn_wps, [d["inclusive"] for d in sigmaOverMu_approx_res.values()])
                 # plt.semilogy()
                 plt.ylabel("SigmaOverMu")
                 plt.xlabel("DNN WP")
                 # plt.ylim(0.8,1)
                 plt.grid(True)
-                self.writer.add_figure("Validation_sigmaScans/SigmaOverMu_scan", plt.gcf(), self.current_epoch)
+                self.writer.add_figure("Validation_sigmaScans/SigmaOverMu_scan_inclusive", plt.gcf(), self.current_epoch)
+                    
+            ## Accuracy
+            def computeAccuracy(cut):
+                tp = len(pred_genMatched[pred_genMatched>cut])
+                fp = len(pred_nonGenMatched[pred_nonGenMatched>cut])
+                fn = len(pred_genMatched[pred_genMatched<cut])
+                tn = len(pred_nonGenMatched[pred_nonGenMatched<cut])
+                return (tp+tn)/(tp+tn+fp+fn)
+            self.writer.add_scalar("Validation/accuracy_near0", computeAccuracy(0.05), self.current_epoch)
+            self.writer.add_scalar("Validation/accuracy_near1", computeAccuracy(1.-0.05), self.current_epoch)
+
+            self.writer.add_pr_curve("PR_curve", genmatching, pred, self.current_epoch)
+
+            if self.current_epoch % (frequency_val*3) != 0:
+                return
+            
+            genmatching = genmatching.cpu()
+            pred = pred.cpu()
+            ### ROC curve
+            fpr, tpr, threshold = roc_curve(genmatching, pred)
+            auc1 = auc(fpr, tpr)
+            plt.plot(fpr,tpr,label='auc = %.1f%%'%(auc1*100.))
+            # plt.semilogy()
+            plt.ylabel("sig. efficiency")
+            plt.xlabel("bkg. mistag rate")
+            # plt.ylim(0.8,1)
+            plt.grid(True)
+            plt.legend(loc='lower right')
+            self.writer.add_figure("Validation/ROC", plt.gcf(), self.current_epoch)
+            self.writer.add_scalar("Validation/ROC_AUC", auc1, self.current_epoch)
+
+            ## ROC curve in eta and en bins
+            aucs = {}
+            for b_ens in range(len(self.val_energy_bins)-1):
+                for b_etas in range(len(self.val_eta_bins)-1):
+                    sel = (abs(val_etas)>self.val_eta_bins[b_etas]) & (abs(val_etas)<self.val_eta_bins[b_etas+1]) & (val_energies>self.val_energy_bins[b_ens]) & (val_energies<self.val_energy_bins[b_ens+1])
+                    if torch.any(sel):
+                        fpr, tpr, threshold = roc_curve(genmatching[sel],pred[sel])
+                        auc1 = auc(fpr, tpr)
+                    else:
+                        auc1 = 0.
+                    aucs[b_ens,b_etas] = auc1
+                    self.writer.add_scalar("Validation_ROC_binned_AUC/eta[%.2f,%.2f]_En" %(self.val_eta_bins[b_etas], self.val_eta_bins[b_etas+1]) + '[%.1f,%.1f]' %(self.val_energy_bins[b_ens], self.val_energy_bins[b_ens+1]), auc1, self.current_epoch)
+
                 
-        ## Accuracy
-        def computeAccuracy(cut):
-            tp = len(pred_genMatched[pred_genMatched>cut])
-            fp = len(pred_nonGenMatched[pred_nonGenMatched>cut])
-            fn = len(pred_genMatched[pred_genMatched<cut])
-            tn = len(pred_nonGenMatched[pred_nonGenMatched<cut])
-            return (tp+tn)/(tp+tn+fp+fn)
-        self.writer.add_scalar("Validation/accuracy_near0", computeAccuracy(0.05), self.current_epoch)
-        self.writer.add_scalar("Validation/accuracy_near1", computeAccuracy(1.-0.05), self.current_epoch)
+            indices = np.array(list(aucs.keys()))
+            values = np.array(list(aucs.values()))
 
-        self.writer.add_pr_curve("PR_curve", genmatching, pred, self.current_epoch)
+            # Determine the matrix dimensions
+            n_rows = indices[:, 0].max() + 1
+            n_cols = indices[:, 1].max() + 1
 
-        if self.current_epoch % 5 != 0:
-            return
-        
-        genmatching = genmatching.cpu()
-        pred = pred.cpu()
-        ### ROC curve
-        fpr, tpr, threshold = roc_curve(genmatching, pred)
-        auc1 = auc(fpr, tpr)
-        plt.plot(fpr,tpr,label='auc = %.1f%%'%(auc1*100.))
-        # plt.semilogy()
-        plt.ylabel("sig. efficiency")
-        plt.xlabel("bkg. mistag rate")
-        # plt.ylim(0.8,1)
-        plt.grid(True)
-        plt.legend(loc='lower right')
-        self.writer.add_figure("Validation/ROC", plt.gcf(), self.current_epoch)
-        self.writer.add_scalar("Validation/ROC_AUC", auc1, self.current_epoch)
+            # Create an empty matrix
+            matrix = np.zeros((n_rows, n_cols))
 
-        ## ROC curve in eta and en bins
-        aucs = {}
-        val_etas = val_dataset["features"][:, featureNames.index("multi_eta")].cpu()
-        val_energies = val_dataset["features"][:, featureNames.index("multi_en")].cpu()
-        for b_ens in range(len(self.val_energy_bins)-1):
-            for b_etas in range(len(self.val_eta_bins)-1):
-                sel = (abs(val_etas)>self.val_eta_bins[b_etas]) & (abs(val_etas)<self.val_eta_bins[b_etas+1]) & (val_energies>self.val_energy_bins[b_ens]) & (val_energies<self.val_energy_bins[b_ens+1])
-                if torch.any(sel):
-                    fpr, tpr, threshold = roc_curve(genmatching[sel],pred[sel])
-                    auc1 = auc(fpr, tpr)
-                else:
-                    auc1 = 0.
-                aucs[b_ens,b_etas] = auc1
-                self.writer.add_scalar("Validation_ROC_binned_AUC/eta[%.2f,%.2f]_En" %(self.val_eta_bins[b_etas], self.val_eta_bins[b_etas+1]) + '[%.1f,%.1f]' %(self.val_energy_bins[b_ens], self.val_energy_bins[b_ens+1]), auc1, self.current_epoch)
+            # Fill in the matrix with the values from the dictionary
+            matrix[indices[:, 0], indices[:, 1]] = values
 
-             
-        indices = np.array(list(aucs.keys()))
-        values = np.array(list(aucs.values()))
+            # Flip the matrix vertically
+            matrix = np.flip(matrix, axis=0)
 
-        # Determine the matrix dimensions
-        n_rows = indices[:, 0].max() + 1
-        n_cols = indices[:, 1].max() + 1
+            # Plot the matrix
+            cmap_reds = copy.copy(plt.colormaps["Reds"])
+            cmap_reds.set_under('white')
 
-        # Create an empty matrix
-        matrix = np.zeros((n_rows, n_cols))
+            plt.imshow(matrix, cmap=cmap_reds)
+            plt.xlabel(r"$|\eta_{trackster}|$")
+            plt.ylabel(r"$E_{trackster}$")
+            plt.colorbar()
 
-        # Fill in the matrix with the values from the dictionary
-        matrix[indices[:, 0], indices[:, 1]] = values
+            # Set the ticks for x-axis and y-axis
+            x_ticks = np.arange(n_cols)  
+            x_labels = ['[%.2f,%.2f]' %(self.val_eta_bins[b], self.val_eta_bins[b+1]) for b in range(len(self.val_eta_bins)-1)]  # Custom text labels
+            plt.xticks(x_ticks, x_labels)
 
-        # Flip the matrix vertically
-        matrix = np.flip(matrix, axis=0)
+            y_ticks = np.arange(n_rows)  # Y-axis tick positions
+            y_labels = ['[%.1f,%.1f]' %(self.val_energy_bins[b], self.val_energy_bins[b+1]) for b in range(len(self.val_energy_bins)-1)][::-1]  # Custom text labels
+            plt.yticks(y_ticks, y_labels)
 
-        # Plot the matrix
-        cmap_reds = copy.copy(plt.colormaps["Reds"])
-        cmap_reds.set_under('white')
-
-        plt.imshow(matrix, cmap=cmap_reds)
-        plt.xlabel(r"$|\eta_{trackster}|$")
-        plt.ylabel(r"$E_{trackster}$")
-        plt.colorbar()
-
-        # Set the ticks for x-axis and y-axis
-        x_ticks = np.arange(n_cols)  
-        x_labels = ['[%.2f,%.2f]' %(self.val_eta_bins[b], self.val_eta_bins[b+1]) for b in range(len(self.val_eta_bins)-1)]  # Custom text labels
-        plt.xticks(x_ticks, x_labels)
-
-        y_ticks = np.arange(n_rows)  # Y-axis tick positions
-        y_labels = ['[%.1f,%.1f]' %(self.val_energy_bins[b], self.val_energy_bins[b+1]) for b in range(len(self.val_energy_bins)-1)][::-1]  # Custom text labels
-        plt.yticks(y_ticks, y_labels)
-
-        # Hide the x-axis and y-axis scales
-        plt.tick_params(axis='both', which='both', bottom=False, left=False)
-        plt.title("AUC")
-        
-        self.writer.add_figure("Validation/ROC_perEnergy", plt.gcf(), self.current_epoch)
+            # Hide the x-axis and y-axis scales
+            plt.tick_params(axis='both', which='both', bottom=False, left=False)
+            plt.title("AUC")
+            
+            self.writer.add_figure("Validation/ROC_perEnergy", plt.gcf(), self.current_epoch)
         
     
-    def saveModel(self, modelName:str, format="pytorch"):
-        """ format can be pytorch or onnx """
+    def saveModel(self, modelName:str, format="pytorch", swapPrediction:bool|None=None):
+        """ format can be pytorch or onnx 
+        swapPrediction : for ONNX export, if True will swap the prediction output (doing 1-pred)
+        set to None (default) it will swap it as needed to ensure DNN pred ~ 1 maps to good association, ~0 is bad
+        """
         if format == "pytorch":
             torch.save({
                 'epoch': self.current_epoch,
@@ -357,9 +423,21 @@ class Trainer:
                 'optimizer_state_dict': self.optimizer.state_dict(),
                 }, self.log_output / ('model_'+modelName+'.pth'))
         elif format == "onnx":
+            if swapPrediction or (swapPrediction is None and self.loss.shouldSwapPrediction):
+                class SwappingModule(nn.Module):
+                    def __init__(self, model) -> None:
+                        super().__init__()
+                        self.model = model
+
+                    def forward(self, input: torch.Tensor) -> torch.Tensor:
+                        return (1-self.model(input))
+                model_maybeSwapped = SwappingModule(self.model)
+            else:
+                model_maybeSwapped = self.model
+
             torch.onnx.export(
-                self.model,
-                torch.ones((1, featureCount)), # placeholder input
+                model_maybeSwapped,
+                torch.ones((1, featureCount), device=self.device), # placeholder input
                 self.log_output / ('model_'+modelName+'.onnx'),
                 export_params=True,
                 verbose=True,
@@ -377,33 +455,51 @@ class Trainer:
 
     
     def full_train(self, train_dataset, val_dataset, nepochs=10, batch_size=8000, weightSamples=False):
-        val_dataset = {key : tensor.to(self.device) for key, tensor in val_dataset.items()}
+        val_dataset_cpu = {key : tensor.cpu() for key, tensor in val_dataset.items()}
+        val_dataset_gpu = {key : tensor.to(self.device) for key, tensor in val_dataset.items()}
         if self.device != "cpu":
-            dataloader_kwargs = dict(num_workers=10, pin_memory=True, pin_memory_device=self.device)
+            dataloader_kwargs = dict(num_workers=5, pin_memory=True, pin_memory_device=self.device)
         else:
             dataloader_kwargs = dict()
         if weightSamples:
             # weight samples so we are equally likely to train on genmatched seed-candidate pairs than not
             if self.loss.trainingLossType == "binary":
                 gen = train_dataset[:]["genmatching"][0] == 1
+                gen_val = val_dataset_gpu["genmatching"] == 1
             else:
                 # Put 0.2 as something vaguely equivalent to what is done in binary case
                 gen = train_dataset[:]["assocScore_training"][0] <= 0.2
+                gen_val = val_dataset_gpu["assocScore_training"] <= 0.2
             # using replacement=True is important as otherwise the sampler runs out of genmatched samples and just spits out batches with only non-genmatched pairs, which is very bad for training !
             sampler = WeightedRandomSampler(torch.where(gen, torch.sum(~gen)/torch.sum(gen), 1.), gen.shape[0], replacement=True)
             shuffle = False
+            # make indices to reproduce weighted sampling in validation dataset. genmatched pairs will be sampled 3 times on average
+            weighted_val_indices = torch.tensor(list(WeightedRandomSampler(torch.where(gen_val, torch.sum(~gen_val)/torch.sum(gen_val), 1.), torch.sum(gen_val).item()*3, replacement=True)))
+            val_dataset_gpu_weighted = {"features" : val_dataset_gpu["features"][weighted_val_indices],
+                                        "genmatching" : val_dataset_gpu["genmatching"][weighted_val_indices], 
+                                        "assocScore_training" : val_dataset_gpu["assocScore_training"][weighted_val_indices]}
         else:
             sampler = None
             shuffle = True
+            weighted_val_indices = None
         train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=shuffle, sampler=sampler, **dataloader_kwargs)
         #val_dataloader = DataLoader(val_dataset, batch_size=100000, **dataloader_kwargs)
 
                 
         self.writer.add_custom_scalars({
+            "Loss" : {
+                "Losses_comparison_weighted" : ["Multiline", ["Loss/train", "Loss/val_weighted"]],
+                "Losses_comparison_unweighted" : ["Multiline", ["Loss/train", "Loss/val"]]
+            },
             "Validation_SigmaAndMu" : {
                 "Sigma_approx" : ["Multiline", [f"Val_Sigma_approx/WP={dnn_wp}" for dnn_wp in self.val_dnn_wps]], 
                 "Mu" : ["Multiline", [f"Val_Mu/WP={dnn_wp}" for dnn_wp in self.val_dnn_wps]],
                 "SigmaOverMu_approx" : ["Multiline", [f"Val_SigmaOverMu_approx/WP={dnn_wp}" for dnn_wp in self.val_dnn_wps]],
+            },
+            "Validation_SigmaAndMu_BestWP" : {
+                "Sigma_approx" : ["Multiline", [f"Val_Sigma_approx_{self.val_seed_energy_bins[b_ens]}-{self.val_seed_energy_bins[b_ens+1]}/BestWP" for b_ens in range(len(self.val_seed_energy_bins)-1)]], 
+                "Mu" : ["Multiline", [f"Val_Mu_{self.val_seed_energy_bins[b_ens]}-{self.val_seed_energy_bins[b_ens+1]}/BestWP" for b_ens in range(len(self.val_seed_energy_bins)-1)]],
+                "SigmaOverMu_approx" : ["Multiline", [f"Val_SigmaOverMu_approx_{self.val_seed_energy_bins[b_ens]}-{self.val_seed_energy_bins[b_ens+1]}/BestWP" for b_ens in range(len(self.val_seed_energy_bins)-1)]],
             },
             "Validation_ROC" : {
                 "binned_AUC" : ["Multiline", ["Validation_ROC_binned_AUC/eta[%.2f,%.2f]_En" %(self.val_eta_bins[b_etas], self.val_eta_bins[b_etas+1]) + '[%.1f,%.1f]' %(self.val_energy_bins[b_ens], self.val_energy_bins[b_ens+1]) 
@@ -411,25 +507,28 @@ class Trainer:
             }
         })
 
-        
+        if self.profiler: self.profiler.start()
         for epoch in tqdm(range(nepochs)):
             self.current_epoch += 1
+            if self.profiler: self.profiler.step()
             self.train_loop(train_dataloader)
             tqdm.write(f"train_loss = {self.train_losses_perEpoch[-1]}")
             self.writer.add_scalar("Loss/train", self.train_losses_perEpoch[-1], epoch)
 
-            self.val_loop(val_dataset)
+            self.val_loop(val_dataset_gpu=val_dataset_gpu, val_dataset_cpu=val_dataset_cpu, val_dataset_gpu_weighted=val_dataset_gpu_weighted)
             tqdm.write(f"val_loss = {self.val_losses_perEpoch[-1]}")
-            self.writer.add_scalar("Loss/val", self.val_losses_perEpoch[-1], epoch)
 
             self.scheduler.step(self.val_losses_perEpoch[-1])
             self.writer.add_scalar("Training/learning_rate", self.scheduler.get_last_lr()[0], epoch)
 
-            if epoch % 4 == 0:
+            if epoch % 5 == 0:
                 self.saveModel(f"epoch{epoch}")
-        
+            if epoch % 10 == 0:
+                self.saveModel(f"epoch{epoch}", format="onnx")
+        if self.profiler: self.profiler.stop()
         self.writer.close()
         self.saveModel(f"lastEpoch_{epoch}")
+        self.saveModel(f"lastEpoch_{epoch}", format="onnx")
 
 
 
