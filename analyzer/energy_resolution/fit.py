@@ -45,13 +45,40 @@ def cruijff(x, A, m, sigmaL,sigmaR, alphaL, alphaR):
     f = 2*sigma*sigma + alpha*dx*dx
     return A* np.exp(-dx*dx/f)
 
+def histogram_quantiles(h:hist.Hist, quantiles):
+    """ Compute quantiles from histogram. Quantiles should be a float (or array of floats) representing the requested quantiles (in [0, 1])
+    Returns array of quantile values
+    """
+    # adapated from https://stackoverflow.com/a/61343915
+    assert len(h.axes) == 1 and h.storage_type == hist.storage.Double, "Histogram quantiles needs a 1D double (non-weighted) histogram"
+    cdf = (np.cumsum(h.values()) - 0.5 * h.values()) / np.sum(h.values()) 
+    return np.interp(quantiles, cdf, h.axes[0].centers)
+
 def fitCruijff(h_forFit:hist.Hist) -> CruijffFitResult:
     mean = np.average(h_forFit.axes[0].centers, weights=h_forFit.values())
-    stdDev = np.average((h_forFit.axes[0].centers - mean)**2, weights=h_forFit.values())
-    param_optimised,param_covariance_matrix = curve_fit(cruijff, h_forFit.axes[0].centers, h_forFit.values(), 
-        p0=[np.max(h_forFit), mean, stdDev, stdDev,  0.1, 0.05], sigma=np.maximum(np.sqrt(h_forFit.values()), 1.8), absolute_sigma=True, maxfev=500000,
-        #bounds=np.transpose([(0., np.inf), (-np.inf, np.inf), (0., np.inf), (0., np.inf), (-np.inf, np.inf), (-np.inf, np.inf)])
-        )
+    q_min2, q_min1, median, q_plus1, q_plus2 = histogram_quantiles(h_forFit, [0.5-0.95/2, 0.5-0.68/2, 0.5, 0.5+0.68/2, 0.5+0.95/2])
+
+    # Approximate sigmaL and sigmaR using quantiles. Using quantiles that are equivalent to 1 sigma left and right if the distribution is Gaussian
+    # Compared to using standard deviation, it is asymmetric and less sensitive to tails
+
+    p0 = [
+        np.max(h_forFit)*0.8, # normalization. The 0.8 is because it seems that the max value is usually a bit higher
+        mean, # central value
+        median-q_min1, #sigmaL : this quantile difference is 1sigma for a Gaussian
+        q_plus1-median, # sigmaR
+        (q_min1-q_min2) / (median-q_min1)/3.81 * 0.28067382, #alphaL : in the ratio, numerator and denominator should be sigma for a gaussian. Otherwise, the heavier the tails, the higher from one. Then some norm coefficient (could be improved)
+        (q_plus2-q_plus1) / (q_plus1-median)/3.81 * 0.28067382 #alphaR 
+    ] 
+    try:
+        param_optimised,param_covariance_matrix = curve_fit(cruijff, h_forFit.axes[0].centers, h_forFit.values(), 
+            p0=p0, sigma=np.maximum(np.sqrt(h_forFit.values()), 1.8), absolute_sigma=True, maxfev=500000,
+            bounds=np.transpose([(0., np.inf), (-np.inf, np.inf), (0., np.inf), (0., np.inf), (-np.inf, np.inf), (-np.inf, np.inf)])
+            )
+    except ValueError: # sometimes it fails with ValueError: array must not contain infs or NaNs and removing bounds helps
+        param_optimised,param_covariance_matrix = curve_fit(cruijff, h_forFit.axes[0].centers, h_forFit.values(), 
+            p0=p0, sigma=np.maximum(np.sqrt(h_forFit.values()), 1.8), absolute_sigma=True, maxfev=500000,
+            #bounds=np.transpose([(0., np.inf), (-np.inf, np.inf), (0., np.inf), (0., np.inf), (-np.inf, np.inf), (-np.inf, np.inf)])
+            )
     return CruijffFitResult(CruijffParam(*param_optimised), param_covariance_matrix)
 
 
