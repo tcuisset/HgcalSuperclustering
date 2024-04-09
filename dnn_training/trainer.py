@@ -2,8 +2,8 @@ import torch
 from torch import nn
 from torch.utils.data import Dataset, DataLoader, WeightedRandomSampler
 from torch.utils.tensorboard import SummaryWriter
-import uproot
-import awkward as ak
+import optuna
+from optuna.trial import Trial, FixedTrial
 from tqdm.auto import tqdm
 import argparse
 from pathlib import Path
@@ -91,6 +91,9 @@ def makeModel(dropout=0.2):
     )
     return model
 
+def makeModelOptuna(trial:Trial):
+    return makeModel(trial.suggest_float("dropout", 0., 0.3))
+
 class BaseLoss:
     trainingLossType:str = None
     shouldSwapPrediction:bool = False
@@ -148,13 +151,22 @@ class ContinuousAssociationScoreLoss(BaseLoss):
         """
         return 1-pred
 
+def makeLossOptuna(trial:Trial):
+    lossType = trial.suggest_categorical("trainingLossType", ["binary", "continuousAssociationScore"])
+    if lossType == "binary":
+        loss = BinaryLoss()
+    elif lossType == "continuousAssociationScore":
+        loss = ContinuousAssociationScoreLoss()
+    return loss
+
 
 class Trainer:
-    def __init__(self, model:nn.Module, loss:BaseLoss, log_output=None, run_name=None, device="cpu", profiler=None):
+    def __init__(self, model:nn.Module, loss:BaseLoss, trial:Trial, log_output=None, run_name=None, device="cpu", profiler=None, earlyStopping=True):
         """ profiler : can be used with pytorch profiler """
         self.model = model
         self.loss = loss
-        self.optimizer = torch.optim.Adam(self.model.parameters())
+        self.trial = trial
+        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=trial.suggest_float("lr", 1e-4, 1e-2, log=True))
         self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, "min", patience=50, factor=0.5)
         self.device = device
         self.profiler = profiler
@@ -164,7 +176,7 @@ class Trainer:
             log_output = Path(log_output)
         if run_name is None:
             from datetime import datetime
-            run_name = datetime.now().strftime("%b%d_%H-%M-%S")
+            run_name = f"{trial.number}-" + datetime.now().strftime("%b%d_%H-%M-%S")
         self.log_output = log_output / run_name
         self.writer = SummaryWriter(log_dir=self.log_output, )
 
@@ -176,9 +188,14 @@ class Trainer:
         self.val_losses_perEpoch = []
 
         self.current_epoch = 0
+        # values for reporting values for optuna hyperparameter optimization
+        self.trial_report_step = 0
+        self.trial_last_report = np.inf
+        self.trial_best_report = np.inf
+        self.best_val_metrics = {} # keeps values of best metrics seen so far
 
         # Validation settings
-        self.val_dnn_wps = [0.3, 0.5, 0.7, 0.8, 0.85, 0.9, 0.93, 0.95, 0.97, 0.98, 0.99, 0.992, 0.994, 0.996, 0.998, 1.]
+        self.val_dnn_wps = [0.1, 0.2, 0.3, 0.5, 0.7, 0.8, 0.85, 0.9, 0.93, 0.95, 0.97, 0.98, 0.99, 0.992, 0.994, 0.996, 0.998, 1.]
         self.val_energy_bins = [0., 2.21427965, 3.11312909, 4.44952669, 7.04064255, 10., np.inf]
         """ energy of candidate """
         self.val_seed_energy_bins = [0., 40., 120,  200, 300, np.inf]
@@ -210,7 +227,6 @@ class Trainer:
         self.model.eval()
         with torch.no_grad():
             feats = val_dataset["features"]
-            genmatching = val_dataset["genmatching"]
             pred = torch.squeeze(self.model(feats), dim=1)
 
             loss = self.loss.compute_loss_eval(pred, val_dataset)
@@ -227,13 +243,13 @@ class Trainer:
         frequency_val = 1
         val_dataset = val_dataset_cpu
         with torch.no_grad():
-            pred, loss = self.loss.switchPredIfNeeded(self.val_evaluateModel(val_dataset_gpu))
-            pred = pred.cpu()
+            pred, loss = self.val_evaluateModel(val_dataset_gpu)
+            pred = self.loss.switchPredIfNeeded(pred).cpu()
             self.val_losses_perEpoch.append(loss)
             self.writer.add_scalar("Loss/val", self.val_losses_perEpoch[-1], self.current_epoch)
 
             if val_dataset_gpu_weighted is not None:
-                pred_weighted, loss_weighted = self.loss.switchPredIfNeeded(self.val_evaluateModel(val_dataset_gpu_weighted))
+                loss_weighted = self.loss.switchPredIfNeeded(self.val_evaluateModel(val_dataset_gpu_weighted)[1])
                 self.writer.add_scalar("Loss/val_weighted", loss_weighted, self.current_epoch)
 
 
@@ -310,6 +326,13 @@ class Trainer:
             self.writer.add_scalar(f"Val_Mu/BestWP", mu_res[best_wp]["inclusive"], self.current_epoch)
             self.writer.add_scalar(f"Val_SigmaOverMu_approx/BestWP", sigmaOverMu_approx_res[best_wp]["inclusive"], self.current_epoch)
             self.writer.add_scalar(f"Val_SigmaOverMu_approx/BestWP_sumEnergyBins", sigmaOverMu_sum[best_wp], self.current_epoch)
+            self.trial.report(sigmaOverMu_sum[best_wp], step=self.trial_report_step)
+            self.trial_last_report = sigmaOverMu_sum[best_wp]
+            if self.trial_last_report < self.trial_best_report:
+                self.trial_best_report = self.trial_last_report
+            self.trial_report_step += 1
+            if sigmaOverMu_sum[best_wp] < self.best_val_metrics.get("SigmaOverMu-BestWP_sumEnergyBins_Best", np.inf):
+                self.best_val_metrics["SigmaOverMu-BestWP_sumEnergyBins_Best"] = sigmaOverMu_sum[best_wp]
             # in energy bins
             for b_ens in range(len(self.val_seed_energy_bins)-1):
                 self.writer.add_scalar(f"Val_Sigma_approx_{self.val_seed_energy_bins[b_ens]}-{self.val_seed_energy_bins[b_ens+1]}/BestWP", gaussianSigmaApprox_res[best_wp][b_ens], self.current_epoch)
@@ -440,7 +463,7 @@ class Trainer:
                 torch.ones((1, featureCount), device=self.device), # placeholder input
                 self.log_output / ('model_'+modelName+'.onnx'),
                 export_params=True,
-                verbose=True,
+                verbose=False,
                 input_names=["input"],
                 output_names=["output"],
                 opset_version=10,
@@ -454,11 +477,14 @@ class Trainer:
         self.current_epoch = checkpoint["epoch"]
 
     
-    def full_train(self, train_dataset, val_dataset, nepochs=10, batch_size=8000, weightSamples=False):
+    def full_train(self, train_dataset, val_dataset, nepochs=10):
+        batch_size = self.trial.suggest_int("batchSize", 64, 16384, log=True)
+        weightSamples = self.trial.suggest_categorical("weightSamples", [True, False])
+
         val_dataset_cpu = {key : tensor.cpu() for key, tensor in val_dataset.items()}
         val_dataset_gpu = {key : tensor.to(self.device) for key, tensor in val_dataset.items()}
         if self.device != "cpu":
-            dataloader_kwargs = dict(num_workers=5, pin_memory=True, pin_memory_device=self.device)
+            dataloader_kwargs = dict(num_workers=2, pin_memory=True, pin_memory_device=self.device)
         else:
             dataloader_kwargs = dict()
         if weightSamples:
@@ -481,7 +507,7 @@ class Trainer:
         else:
             sampler = None
             shuffle = True
-            weighted_val_indices = None
+            val_dataset_gpu_weighted = None
         train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=shuffle, sampler=sampler, **dataloader_kwargs)
         #val_dataloader = DataLoader(val_dataset, batch_size=100000, **dataloader_kwargs)
 
@@ -508,30 +534,44 @@ class Trainer:
         })
 
         if self.profiler: self.profiler.start()
-        for epoch in tqdm(range(nepochs)):
-            self.current_epoch += 1
-            if self.profiler: self.profiler.step()
-            self.train_loop(train_dataloader)
-            tqdm.write(f"train_loss = {self.train_losses_perEpoch[-1]}")
-            self.writer.add_scalar("Loss/train", self.train_losses_perEpoch[-1], epoch)
+        try:
+            for epoch in (pbar := tqdm(range(nepochs))):
+                self.current_epoch += 1
+                if self.profiler: self.profiler.step()
+                self.train_loop(train_dataloader)
+                self.writer.add_scalar("Loss/train", self.train_losses_perEpoch[-1], epoch)
 
-            self.val_loop(val_dataset_gpu=val_dataset_gpu, val_dataset_cpu=val_dataset_cpu, val_dataset_gpu_weighted=val_dataset_gpu_weighted)
-            tqdm.write(f"val_loss = {self.val_losses_perEpoch[-1]}")
+                self.val_loop(val_dataset_gpu=val_dataset_gpu, val_dataset_cpu=val_dataset_cpu, val_dataset_gpu_weighted=val_dataset_gpu_weighted)
+                pbar.set_description(f"train_loss = {self.train_losses_perEpoch[-1]}, val_loss = {self.val_losses_perEpoch[-1]}")
 
-            self.scheduler.step(self.val_losses_perEpoch[-1])
-            self.writer.add_scalar("Training/learning_rate", self.scheduler.get_last_lr()[0], epoch)
+                self.scheduler.step(self.val_losses_perEpoch[-1])
+                self.writer.add_scalar("Training/learning_rate", self.scheduler.get_last_lr()[0], epoch)
+                scheduler_ended = True
+                for i, param_group in enumerate(self.optimizer.param_groups):
+                    old_lr = float(param_group['lr'])
+                    new_lr = max(old_lr * self.scheduler.factor, self.scheduler.min_lrs[i])
+                    if old_lr - new_lr > self.scheduler.eps:
+                        scheduler_ended = False
+                if scheduler_ended and self.scheduler.num_bad_epochs > 20: # early stopping when no val loss improvement and already at end of LR scheduler
+                    return self.trial_best_report
 
-            if epoch % 5 == 0:
-                self.saveModel(f"epoch{epoch}")
-            if epoch % 10 == 0:
-                self.saveModel(f"epoch{epoch}", format="onnx")
-        if self.profiler: self.profiler.stop()
-        self.writer.close()
-        self.saveModel(f"lastEpoch_{epoch}")
-        self.saveModel(f"lastEpoch_{epoch}", format="onnx")
+                if epoch % 5 == 0:
+                    self.saveModel(f"epoch{epoch}")
+                if epoch % 10 == 0:
+                    self.saveModel(f"epoch{epoch}", format="onnx")
+                
+                if self.trial.should_prune():
+                    raise optuna.TrialPruned()
+        finally:
+            if self.profiler: self.profiler.stop()
+            try:
+                self.writer.add_hparams(self.trial.params, {"SigmaOverMu-sum-Best" : self.best_val_metrics["SigmaOverMu-BestWP_sumEnergyBins_Best"]})
+            except KeyError: pass
+            self.writer.close()
+            self.saveModel(f"lastEpoch_{epoch}")
+            self.saveModel(f"lastEpoch_{epoch}", format="onnx")
 
-
-
+        return self.trial_last_report
 
 
 if __name__ == "__main__":
@@ -549,18 +589,19 @@ if __name__ == "__main__":
     parser.add_argument("--trainingLossType", help="Type of training loss", choices=["binary", "continuousAssociationScore"], default="binary")
     args = parser.parse_args()
 
+    trial = FixedTrial({
+        "dropout" : args.dropout,
+        "trainingLossType" : args.trainingLossType,
+        "batchSize" : args.batchSize,
+        "weightSamples" : args.weightSamples
+    })
     device = args.device
-    model = makeModel(dropout=args.dropout)
-    if args.trainingLossType == "binary":
-        loss = BinaryLoss()
-    elif args.trainingLossType == "continuousAssociationScore":
-        loss = ContinuousAssociationScoreLoss()
-    else:
-        raise ValueError()
+    model = makeModelOptuna(trial)
+    loss = makeLossOptuna(trial)
     trainer = Trainer(model.to(device), loss, device=device, log_output=args.output)
     if args.resume:
         trainer.reloadModel(args.resume)
     print("Loading dataset...")
-    datasets = makeDatasetsTrainVal_fromCache(args.input, device_valDataset=device, trainingLossType=args.trainingLossType)
+    datasets = makeDatasetsTrainVal_fromCache(args.input, device_valDataset=device, trainingLossType=trial.params["trainingLossType"])
     print("Dataset loaded into RAM")
-    trainer.full_train(datasets["trainDataset"], datasets["valDataset"], nepochs=args.nEpochs, batch_size=args.batchSize, weightSamples=args.weightSamples)
+    trainer.full_train(datasets["trainDataset"], datasets["valDataset"], nepochs=args.nEpochs)
