@@ -1,0 +1,20 @@
+CondorLogDir = /grid_mnt/data_cms_upgrade/cuisset/supercls/dnn_training/hyperparams-v2/condor_logs
+
+executable = hyperparams.sh
+arguments = ""
+# environment = ""
+universe = vanilla
+output = $(CondorLogDir)/$(JobId).out
+error = $(CondorLogDir)/$(JobId).err
+log = $(CondorLogDir)/$(JobId).log
+when_to_transfer_output = ON_EXIT_OR_EVICT
+
+request_memory = 2G
+# can only be 1 or 8 on LLR T3
+request_cpus = 1
+
+T3Queue = long
+WNTag = el7
+include : /opt/exp_soft/cms/t3/t3queue |
+
+queue JobId from seq 1 1 | 
