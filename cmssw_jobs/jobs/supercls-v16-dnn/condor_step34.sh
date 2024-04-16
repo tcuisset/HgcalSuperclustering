@@ -23,4 +23,4 @@ cmsRun -n 8 step3_TICLv5_DNN_reduced.py
 set +e
 mkdir -p /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/$VERSION/
 mv step3.root /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/$VERSION/step3_DNN_$INDEX.root
-
+mv step3_inDQM.root /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/$VERSION/step3_inDQM_$INDEX.root

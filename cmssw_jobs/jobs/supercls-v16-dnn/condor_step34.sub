@@ -1,7 +1,7 @@
 
 # Parameters (need absolute paths)
-ConfigPath = /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/supercls-v14-dnn
-Version = supercls-v14-dnn
+ConfigPath = /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/supercls-v16-dnn
+Version = supercls-v16-dnn
 
 executable = $(ConfigPath)/condor_step34.sh
 transfer_input_files = $(ConfigPath)/step3_TICLv5_DNN_reduced.py
@@ -40,17 +40,10 @@ ModelFilename = supercls_v2_Mar26_16-31.onnx
 Version = supercls-v14-dnn-Mar26_22-19
 ModelFilename = supercls_v2_Mar26_22-19.onnx
 
-Version = supercls-v14-dnn-Apr05_14-48
+Version = supercls-v16-dnn-Apr05_14-48
 ModelFilename = supercls_v2_Apr05_14-48.onnx
 DnnWP = 0.85
 
-#Version = supercls-v14-dnn-hyperparams-v3-36
-#ModelFilename = dnn_training/hyperparams-v3/36-Apr08_23-08-40/model_lastEpoch_499.onnx
-#DnnWP = 0.3
-
-#Version = supercls-v14-dnn-hyperparams-v3-81
-#ModelFilename = dnn_training/hyperparams-v3/81-Apr09_03-13-06/model_lastEpoch_499.onnx
-#DnnWP = 0.99
 
 InputFolder = /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-sameSign
 queue SampleId from seq 1 30 |
