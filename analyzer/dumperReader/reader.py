@@ -1,3 +1,4 @@
+""" Reader class to read TICLDumper output """
 from functools import cached_property
 from typing import Literal
 from pathlib import Path

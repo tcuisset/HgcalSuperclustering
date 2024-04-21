@@ -1,9 +1,11 @@
+""" Reads EDM files directly with FWLite """
 import ROOT
 import cppyy
 from DataFormats.FWLite import Events, Handle
-import edmReader.pythonizations
 from pathlib import Path
 import pandas as pd
+# add this if using in a notebook
+#import edmReader.pythonizations
 
 class EdmReader(Events):
     def __init__(self, *args, **kwargs) -> None:

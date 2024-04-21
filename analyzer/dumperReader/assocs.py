@@ -1,3 +1,4 @@
+""" Tools to interpret the trackster to simTrackster associations from TICLDumper """
 from functools import cached_property
 from typing import Literal
 

@@ -1,3 +1,4 @@
+""" Tools to read output from SuperclusteringSampleDumper (the CMSSW dumper to produce samples for DNN training) """
 from enum import Enum
 import math
 
