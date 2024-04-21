@@ -77,7 +77,7 @@ class EdmReader(Events):
             print(pfBlock)
 
 
-class MultiEdmReader:
+class MultiEdmReaderV1:
     """ Reads several edm files in parallel for comparison, matching event/run numbers """
 
     def __init__(self, *paths) -> None:
@@ -127,3 +127,37 @@ def makeDataframes(path:str):
     genparticles = []
     for evt in evts:
         pass
+
+class MultiEdmReader:
+    """ Reads several edm files in parallel for comparison, matching event/run numbers """
+
+    def __init__(self, *paths) -> None:
+        self.files = [[ROOT.TFile(path) for path in pathSeries] for pathSeries in paths]
+        self.events = [[EdmReader(file) for file in fileSeries] for fileSeries in self.files]
+        for evtsForIdx in self.events:
+            for evt in evtsForIdx:
+                evt._createFWLiteEvent()
+        self.currentFileIdx = 0
+
+    def __iter__(self):
+        self.currentFileIdx = 0
+        while True:
+            try:
+                it = iter(self.events[0][self.currentFileIdx])
+                next(it)
+                next(it)
+            except StopIteration:
+                self.currentFileIdx += 1
+                if self.currentFileIdx >= len(self.events[0]):
+                    return
+                self.events[0][self.currentFileIdx].to(0)
+            print(self.events[0][self.currentFileIdx].object().id())
+            for evtsForIdx in self.events[1:]:
+                evtsForIdx[self.currentFileIdx].object().to(self.events[0][self.currentFileIdx].object().id())
+            
+            yield tuple(evtsForIdx[self.currentFileIdx] for evtsForIdx in self.events)
+
+
+
+
+
