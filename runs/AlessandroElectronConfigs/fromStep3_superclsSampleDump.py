@@ -40,7 +40,7 @@ process.options.numberOfStreams = 0
 process.superclusteringSampleDumper = cms.EDAnalyzer("SuperclusteringSampleDumper",
 )
 
-process.p = cms.EndPath(process.dumper)
+process.p = cms.EndPath(process.superclusteringSampleDumper)
 
 
 process.Timing = cms.Service("Timing",
