@@ -82,6 +82,8 @@ def pythonize_reco(klass, name):
         klass.__repr__ = repr_helper("outerEta", "outerPt", "seedDirection")
     elif name == "GsfTrack":
         klass.__repr__ = repr_helper("etaMode", "ptMode", "qoverpMode", "outerEta", "outerPt", "seedDirection")
+    elif name == "GsfElectron":
+        klass.__repr__ = repr_helper("charge", "caloEnergy", "correctedEcalEnergy", "eSuperClusterOverP")
     elif name in ["PFBlock"]:
         # use operator<< for repr
         klass.__repr__ = klass.__str__
