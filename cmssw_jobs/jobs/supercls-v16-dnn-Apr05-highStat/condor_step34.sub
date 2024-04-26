@@ -1,0 +1,35 @@
+
+# Parameters (need absolute paths)
+ConfigPath = /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/cmssw_jobs/jobs/supercls-v16-dnn-Apr05-highStat
+Version = supercls-v16-dnn-Apr05-highstat
+
+executable = $(ConfigPath)/condor_step34.sh
+transfer_input_files = $(ConfigPath)/step3_TICLv5_DNN_dumperOnly.py
+environment = "INDEX=$(SampleId) VERSION=$(Version) INPUT_FOLDER=$(InputFolder) MODEL_FILENAME=$(ModelFilename) DNN_WP=$(DnnWP)"
+universe = vanilla
+output = logs/step34_$(SampleId).out
+error = logs/step34_$(SampleId).err
+log = logs/step34_$(SampleId).log
+transfer_output_files = ""
+
+request_memory = 20G
+# can only be 1 or 8 on LLR T3
+request_cpus = 8
+
+T3Queue = $(T3Queue:short)
+WNTag = $(WNTag:el7)
+include : /opt/exp_soft/cms/t3/t3queue |
+
+
+Version = supercls-v16-dnn-Apr05_14-48
+ModelFilename = supercls_v2_Apr05_14-48.onnx
+DnnWP = 0.85
+priority = 5
+
+InputFolder = /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-sameSign
+queue SampleId from seq 2 30 |
+InputFolder = /grid_mnt/data_cms_upgrade/cuisset/supercls/alessandro_electrons/input-oppositeSign
+#queue SampleId from seq 201 230 |
+
+
+
