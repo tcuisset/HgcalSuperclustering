@@ -60,7 +60,7 @@ class DumperReader:
 
     @cached_property
     def tracksters(self) -> ak.Array:
-        return self.fileDir["trackstersCLUE3DEM"].arrays()
+        return self.fileDir["tracksters"].arrays()
     
     @cached_property
     def tracksters_zipped(self) -> ak.Array:
@@ -100,7 +100,7 @@ class DumperReader:
 
     @cached_property
     def associations(self) -> ak.Array:
-        return self.fileDir["associations"].arrays(filter_name=["event_", "tsCLUE3DEM_*"])
+        return self.fileDir["associations"].arrays(filter_name=["event_", "tsCLUE3D_*"])
     
     
     @cached_property

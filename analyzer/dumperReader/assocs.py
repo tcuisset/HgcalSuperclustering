@@ -29,16 +29,16 @@ def assocs_zip_recoToSim(assocs_unzipped:ak.Array, simVariant:Literal["CP", "SC"
     """
     if simVariant == "CP":
         return ak.zip({
-            "ts_id":ak.local_index(assocs_unzipped.tsCLUE3DEM_recoToSim_CP, axis=1),
-            "caloparticle_id":assocs_unzipped.tsCLUE3DEM_recoToSim_CP,
-            "score":assocs_unzipped.tsCLUE3DEM_recoToSim_CP_score,
-            "sharedE":assocs_unzipped.tsCLUE3DEM_recoToSim_CP_sharedE})  
+            "ts_id":ak.local_index(assocs_unzipped.tsCLUE3D_recoToSim_CP, axis=1),
+            "caloparticle_id":assocs_unzipped.tsCLUE3D_recoToSim_CP,
+            "score":assocs_unzipped.tsCLUE3D_recoToSim_CP_score,
+            "sharedE":assocs_unzipped.tsCLUE3D_recoToSim_CP_sharedE})  
     elif simVariant == "SC":
         return ak.zip({
-            "ts_id":ak.local_index(assocs_unzipped.tsCLUE3DEM_recoToSim_SC, axis=1),
-            "simcluster_id":assocs_unzipped.tsCLUE3DEM_recoToSim_SC,
-            "score":assocs_unzipped.tsCLUE3DEM_recoToSim_SC_score,
-            "sharedE":assocs_unzipped.tsCLUE3DEM_recoToSim_SC_sharedE})
+            "ts_id":ak.local_index(assocs_unzipped.tsCLUE3D_recoToSim_SC, axis=1),
+            "simcluster_id":assocs_unzipped.tsCLUE3D_recoToSim_SC,
+            "score":assocs_unzipped.tsCLUE3D_recoToSim_SC_score,
+            "sharedE":assocs_unzipped.tsCLUE3D_recoToSim_SC_sharedE})
     else:
         raise ValueError("CP or SC")
     
