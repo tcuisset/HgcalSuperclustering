@@ -1,6 +1,5 @@
 #!/bin/bash
-cd /workspaces/repo/CMSSW_14_0_0_pre1
-cmsset
+cd /workspaces/repo/base_cmssw/CMSSW_14_1_DBG_X_2024-04-18-2300
 cmsenv
-cd -
-gdb "$@"
+cd - &>/dev/null
+exec gdb "$@"

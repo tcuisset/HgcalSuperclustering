@@ -5,14 +5,6 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: makeAllDataframe",
-            "type": "python",
-            "request": "launch",
-            "module": "analyzer.driver.makeAllDataframe",
-            "justMyCode": true,
-            "args": ["-i", "runs_results/histo.root", "-o", "runs_results/"]
-        },
-        {
             "name": "Python: Current File in CMSSW",
             "type": "python",
             "request": "launch",
@@ -22,20 +14,16 @@
             "cwd": "${workspaceFolder}/CMSSW_13_2_5_patch2"
         },
         {
-            "name": "(gdb) Launch cmsRun on current config file",
+            "name": "(gdb) cmsRun current config",
             "type": "cppdbg",
             "request": "launch",
-            "program": "/cvmfs/cms.cern.ch/el8_amd64_gcc12/cms/cmssw/CMSSW_14_0_0_pre1/bin/el8_amd64_gcc12/cmsRun",
-            "args": [
-                "-n", "1",
-                "${file}"
-            ],
-            "stopAtEntry": false,
-            "cwd": "${input:cwdInput}",
-            "environment": [],
+            "program": "/cvmfs/cms-ib.cern.ch/sw/x86_64/week1/el8_amd64_gcc12/cms/cmssw/CMSSW_14_1_DBG_X_2024-04-18-2300/bin/el8_amd64_gcc12/cmsRun",
+            "args": ["${file}"],
+            "stopAtEntry": false, //If you want a breakpoint on main
+            "cwd": "${input:cwd}", //Change current working directory
+            //"envFile": "${workspaceFolder}/.vscode/cms.env", // if you want to set environment variable from file, not needed if you use the miDebuggerPath with script trick
             "externalConsole": false,
             "MIMode": "gdb",
-            "miDebuggerPath": "/workspaces/repo/.vscode/gdb-cmsenv.sh",
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
@@ -48,16 +36,18 @@
                     "ignoreFailures": true
                 },
                 {
-                    "text": "set auto-load safe-path /"
+                    "description": "auto-load safe-path", //Needed for pretty-printing types (like showing std::vector elements)
+                    "text": "set auto-load safe-path /",
+                    "ignoreFailures": true
                 }
-            ]
+            ],
+            "miDebuggerPath": "${workspaceFolder}/.vscode/gdb-cmsenv.sh" //Put here the path to the script that calls cmsenv then launches gdb
         },
     ],
     "inputs": [
         {
-            "id": "cwdInput",
+            "id" : "cwd",
             "type": "promptString",
-            "default": "/workspaces/repo/runs_results/",
             "description": "Working directory for cmsRun"
         }
     ]

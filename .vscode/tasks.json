@@ -3,9 +3,9 @@
     "tasks": [
         {
             "label": "Build all (scram)",
-            "command": "cmsenv; scram build -j20",
+            "command": "scram",
             "type": "shell",
-            //"args": ["build", "-j20"],
+            "args": ["build", "-j20"],
             "problemMatcher": [
                 "$gcc"
             ],
@@ -18,27 +18,12 @@
             }
         },
         {
-            "label": "Build current module (scram)",
-            "command": "cmsenv; scram build -j5 `echo ${relativeFileDirname} | cut -d/ -f3-4`", // https://stackoverflow.com/questions/41229950/how-to-get-first-n-parts-of-a-path
+            "label": "Run step3 26093.0_CloseByParticleGun+2026D101_toRECO",
             "type": "shell",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "presentation": {
-                "reveal": "always"
-            },
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/CMSSW_13_2_5_patch2"
-            }
-        },
-        {
-            "label": "Run step3 TICL only",
-            "type": "shell",
-            "command": "cmsRun step3b_TICLonly.py",
+            "command": "cd ${workspaceFolder}/CMSSW_13_2_5_patch2; eval `scramv1 runtime -sh`; cd -; cmsRun step3_RAW2DIGI_RECO_RECOSIM.py",
             "problemMatcher": [],
             "options": {
-                "cwd": "${workspaceFolder}/runs/TICLseparate"
+                "cwd": "${workspaceFolder}/runs/26093.0_CloseByParticleGun+2026D101_toRECO"
             },
             "dependsOn" : ["Build all (scram)"]
         }

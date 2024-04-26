@@ -1,5 +1,5 @@
 #!/bin/bash
-cd /workspaces/repo/CMSSW_14_0_0_pre1
+cd /workspaces/cmssw/CMSSW_13_2_5_patch2
 cmsset
 cmsenv
 cd -

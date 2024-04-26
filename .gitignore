@@ -1,4 +1,4 @@
-/CMSSW_*/
+**/CMSSW_*/
 /scratch/
 __pycache__/
 /data*/

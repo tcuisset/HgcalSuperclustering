@@ -1,7 +1,7 @@
 {
     "python.analysis.include": [
         //"/cvmfs/cms.cern.ch/el8_amd64_gcc11/cms/cmssw-patch/CMSSW_13_2_5_patch2/python/**",
-        //"/workspaces/repo/CMSSW_13_2_5_patch2/src/**",
+        "/workspaces/cmssw/CMSSW_13_2_5_patch2/src/**",
         //"/cvmfs/cms.cern.ch/el8_amd64_gcc11/cms/cmssw-patch/CMSSW_13_2_5_patch2/src/**"
     ],
     "python.analysis.logLevel": "Information",
@@ -79,24 +79,7 @@
         "typeinfo": "cpp",
         "variant": "cpp",
         "charconv": "cpp",
-        "bit": "cpp",
-        "compare": "cpp",
-        "concepts": "cpp",
-        "numbers": "cpp",
-        "semaphore": "cpp",
-        "shared_mutex": "cpp",
-        "span": "cpp",
-        "stop_token": "cpp",
-        "hash_set": "cpp",
-        "threadpool": "cpp",
-        "*.inc": "cpp",
         "valarray": "cpp"
     },
-    "python.autoComplete.extraPaths": [
-        "${workspaceFolder}/analyzer"
-    ],
-    "python.analysis.extraPaths": [
-        "${workspaceFolder}/analyzer"
-    ],
-    "git.repositoryScanMaxDepth": 4
+    "git.repositoryScanMaxDepth": 3,
 }
