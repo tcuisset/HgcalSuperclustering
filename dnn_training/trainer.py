@@ -304,6 +304,12 @@ class Trainer:
                 if self.current_epoch % (frequency_val*2) == 0:
                     self.writer.add_histogram(f"Val_superclsEnergy/WP={dnn_wp}", superclsEnergy, self.current_epoch)
                     self.writer.add_histogram(f"Val_superclsEnergy_ratioOverCP/WP={dnn_wp}", superclsEnergy_ratio, self.current_epoch)
+                    plt.figure()
+                    plt.scatter(val_dataset["caloParticleEnergy_perEvent"], superclsEnergy_ratio, s=0.5)
+                    plt.xlabel("CaloParticle energy (GeV)")
+                    plt.ylabel("Superclustered energy / CP energy")
+                    self.writer.add_figure(f"Val_superclsEnergy_ratioOverCP/Scatter_WP={dnn_wp}", plt.gcf(), self.current_epoch)
+                    plt.close()
                 
                 sigmaOverMu_sum[dnn_wp] = 0. 
                 for b_ens in range(len(self.val_seed_energy_bins)-1):
@@ -593,6 +599,7 @@ if __name__ == "__main__":
         "dropout" : args.dropout,
         "trainingLossType" : args.trainingLossType,
         "batchSize" : args.batchSize,
+        "lr" : 1e-3,
         "weightSamples" : args.weightSamples
     })
     device = args.device
