@@ -157,11 +157,16 @@ process.TFileService = cms.Service("TFileService",
                                     fileName=cms.string("dumper.root")
                                     )
 process.load("RecoHGCal.TICL.ticlDumper_cff")
+# remove PU associator as that takes forever and we don't use it
+del process.tracksterSimTracksterAssociationLinkingPU
+process.ticlDumper.associators.remove(next(x for x in process.ticlDumper.associators if x.suffix == cms.string("PU")))
 process.ticlDumper_step = cms.EndPath(process.ticlDumper)
 
 process.load("RecoHGCal.TICL.superclusteringSampleDumper_cfi")
 process.superclusteringSampleDumper_step = cms.EndPath(process.superclusteringSampleDumper)
 
+# needs tracksterSimTracksterAssociationLinkingPU and is slow
+del process.hgcalValidator
 
 # Schedule definition
 process.schedule = cms.Schedule(process.raw2digi_step,process.reconstruction_step,process.recosim_step,
