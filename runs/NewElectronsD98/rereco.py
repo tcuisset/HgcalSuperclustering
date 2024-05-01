@@ -40,7 +40,7 @@ process.source = cms.Source("PoolSource",
 process.options = cms.untracked.PSet(
     IgnoreCompletely = cms.untracked.vstring(),
     Rethrow = cms.untracked.vstring(),
-    TryToContinue = cms.untracked.vstring('ProductNotFound'),
+    TryToContinue = cms.untracked.vstring(),#'ProductNotFound'
     accelerators = cms.untracked.vstring('*'),
     allowUnscheduled = cms.obsolete.untracked.bool,
     canDeleteEarly = cms.untracked.vstring(),
@@ -128,16 +128,23 @@ del process.offlinePrimaryVerticesWithBS
 del process.firstStepPrimaryVertices
 del process.ecalPreshowerRecHit
 del process.offlineBeamSpot
-del process.muonSeededSeedsInOut # used for generalTracks rereco, to avoid running whole muon reco we use the RECO for this
-del process.muonSeededSeedsOutIn
+del process.earlyMuons
+# del process.muonSeededSeedsInOut # used for generalTracks rereco, to avoid running whole muon reco we use the RECO for this
+# del process.muonSeededSeedsOutIn
+del process.rpcRecHits
 process.reconstruction_trackingOnly_step = cms.Path(process.reconstruction_trackingOnly)
 
 # Electron validation
 process.load("Validation.RecoEgamma.electronValidationSequence_cff")
-process.electronValidationSequence_step = cms.Path(process.electronValidationSequence)
+del process.electronMcSignalValidatorPt1000 # we need gedGsfElectrons rereco for this (could be done)
+process.electronValidationSequence_step = cms.Path(process.mergedSuperClustersHGC + process.electronValidationSequence)
 
+del process.ecalDetailedTimeRecHit
+# We need to rereco pfRecHits as we need CaloCell (transient) for pfTrackElec
+process.pfRecHit_step = cms.Path(process.particleFlowRecHitHGC + process.particleFlowRecHitECAL +process.particleFlowRecHitPS+process.particleFlowClusterECALUncorrected+ process.particleFlowClusterPS +process.ecalBarrelClusterFastTimer+ process.particleFlowTimeAssignerECAL + process.particleFlowClusterECAL)
 # Schedule definition
-process.schedule = cms.Schedule(process.reconstruction_trackingOnly_step, 
+process.schedule = cms.Schedule(process.pfRecHit_step,
+                                process.reconstruction_trackingOnly_step, 
                                 process.superclustering_step,
                                 process.egamma_step,
                                 process.electronValidationSequence_step,

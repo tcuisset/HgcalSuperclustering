@@ -261,9 +261,9 @@ process.FEVTDEBUGHLToutput.outputCommands = cms.untracked.vstring(
     'keep *_pfTICL_*_*',
 
     # content for electron superclustering studies
-    # "keep *_particleFlowRecHitHGC_*_*",
-    "keep *_particleFlowClusterHGCal_*_*",
-    "keep *_particleFlowSuperClusterHGCal_*_*",
+    # "keep *_particleFlowRecHitHGC_*_*", # needs to be rereco, only there for studies
+    # "keep *_particleFlowClusterHGCal_*_*", #rereco
+    # "keep *_particleFlowSuperClusterHGCal_*_*", # also needed by ElectronMcSignalValidator to determine if electronCore are endcap or barrel
 
     "keep *_ecalDrivenElectronSeeds_*_*",
     "keep *_mergedSuperClustersHGC_*_*",
@@ -299,7 +299,8 @@ process.FEVTDEBUGHLToutput.outputCommands = cms.untracked.vstring(
     # 'keep *_ak4CaloJetsForTrk_*_RECO',
     # 'keep *_muonSeededTracksInOut_*_RECO',
     #'keep *_hcalDigis_*_*',
-    # 'keep *_earlyGeneralTracks_*_RECO',
+
+
 
     # for ecalDrivenElectronSeeds
     'keep *_HGCalRecHit_*_*',
@@ -307,20 +308,37 @@ process.FEVTDEBUGHLToutput.outputCommands = cms.untracked.vstring(
     # "keep *_initialStepSeeds_*_RECO", # does not work because part of it is not persistent
     "keep *_highPtTripletStepSeeds_*_RECO",
     "keep *_tripletElectronSeeds_*_RECO",
-    "keep *_particleFlowSuperClusterECAL_particleFlowSuperClusterECALBarrel_RECO",
+    "keep *_particleFlowSuperClusterECAL_*_RECO", # need both SuperCluster and BasicCluster (otherwise ref error)
+    #"keep *_particleFlowSuperClusterECAL_particleFlowBasicClusterECALBarrel_RECO",
     "keep *_offlinePrimaryVerticesWithBS_*_RECO",
     "keep *_offlineBeamSpot_*_*",
 
     # for ecalDrivenGsfElectronCoresHGC
     # (none)
 
+
+    # for muonSeededSeedsInOut/OutIn 
+    # "keep *_muonSeededSeedsInOut_*_RECO", # for generalTracks rereco
+    # "keep *_muonSeededSeedsOutIn_*_RECO",
+    "keep *_earlyMuons_*_RECO",
+    'keep *_earlyGeneralTracks_*_RECO', # for muons out of earlyMuons read from RECO
+    'keep *_standAloneMuons_UpdatedAtVtx_RECO',
+    'keep *_siPixelClusters_*_*',
+    'keep *_siPhase2Clusters_*_RECO',
+
+
+    # for earlyMuons
+    # 'keep *_siPixelClusters_*_*',
+    # 'keep *_rpcRecHits_*_*',
+    # 'keep *_standAloneMuons_UpdatedAtVtx_RECO',
+    # 'keep *_glbTrackQual_*_RECO',
+
     # for trackerDrivenElectronSeeds
     # needs generalTracks but rereco as it needs transient stuff
-    "keep *_particleFlowClusterHCAL_*_RECO",
-    "keep *_particleFlowClusterECAL_*_RECO",
-    "keep *_particleFlowClusterPS_*_RECO",
-    "keep *_muonSeededSeedsInOut_*_RECO", # for generalTracks rereco
-    "keep *_muonSeededSeedsOutIn_*_RECO",
+    # "keep *_particleFlowClusterHCAL_*_RECO", #rereco
+    # "keep *_particleFlowClusterECAL_*_RECO",
+    # "keep *_particleFlowClusterPS_*_RECO",
+
 
     # for electronMergedSeeds
     "keep *_trackerDrivenElectronSeeds_SeedsForGsf_RECO",
@@ -332,17 +350,28 @@ process.FEVTDEBUGHLToutput.outputCommands = cms.untracked.vstring(
     #"keep *_generalTracks_*_RECO",
     "keep *_muons1stStep_*_RECO",
 
+    # for particleFlowClusterECAL
+    "keep *_addPileupInfo_bunchSpacing_*",
+    "keep *_offlinePrimaryVertices4D_*_*",
+    "keep *_ecalDetailedTimeRecHit_EcalRecHitsEB_*",
+    # "keep *_ecalBarrelClusterFastTimer_PerfectResolutionModelResolution_RECO", # rereco
+    # "keep *_ecalBarrelClusterFastTimer_PerfectResolutionModel_RECO",
+    # "keep *_particleFlowClusterPS_*_RECO",
+    # "keep *_particleFlowTimeAssignerECAL_*_RECO",
+
     # for pfTrackElec
     "keep *_pfConversions_*_RECO",
     "keep *_pfDisplacedTrackerVertex_*_RECO",
+    # "keep *_particleFlowRecHitHGC_*_RECO", # we need to rereco these as we use transient members (caloCell)
+    # "keep *_particleFlowRecHitECAL_*_RECO",
 
     # for ecalDrivenGsfElectronsHGC
     "keep *_ecalRecHit_EcalRecHitsEB_*", 
     "keep *_ecalRecHit_EcalRecHitsEE_*", # not actually used but still consumes it
     "keep *_generalTracks_*_RECO",
     "keep *_offlinePrimaryVertices_*_RECO",
-    "keep *_particleFlowClusterHCAL_*_RECO",
-    "keep *_particleFlowClusterECAL_*_RECO",
+    # "keep *_particleFlowClusterHCAL_*_RECO", # rereco
+    # "keep *_particleFlowClusterECAL_*_RECO",
     "keep *_allConversions_*_RECO",
 
     # for photonCoreHGC
@@ -352,8 +381,8 @@ process.FEVTDEBUGHLToutput.outputCommands = cms.untracked.vstring(
     "keep *_ecalRecHit_EcalRecHitsEB_*", 
     "keep *_ecalRecHit_EcalRecHitsEE_*", # not actually used but still consumes it
     "keep *_generalTracks_*_RECO",
-    "keep *_particleFlowClusterECAL_*_RECO",
-    "keep *_particleFlowClusterHCAL_*_RECO",
+    # "keep *_particleFlowClusterECAL_*_RECO", # rereco
+    # "keep *_particleFlowClusterHCAL_*_RECO",
     "keep *_ecalPreshowerRecHit_EcalRecHitsES_RECO",
     "keep *_ecalPreshowerDigis_*_*",
     "keep *_offlinePrimaryVerticesWithBS_*_RECO",
@@ -363,6 +392,12 @@ process.FEVTDEBUGHLToutput.outputCommands = cms.untracked.vstring(
     'keep *_gedGsfElectronCores_*_RECO',
     'keep *_ak4GenJets_*_HLT',
     "keep *_offlineBeamSpot_*_*",
+    "keep *_particleFlowClusterHGCal_*_RECO", #get rerecoed but still need it as edm::Ref for ElectronMcSignalValidator
+    "keep *_particleFlowSuperClusterHGCal_*_RECO", # also needed by ElectronMcSignalValidator to determine if electronCore are endcap or barrel
+    "keep *_particleFlowClusterECAL_*_RECO",
+    "keep *_particleFlowSuperClusterECAL_*_RECO", # need both SuperCluster and BasicCluster (otherwise ref error)
+    "keep *_particleFlowEGamma_*_RECO", # for accessing gedGsfElectrons embedded refs
+
 )
 
 # process.Timing = cms.Service("Timing",
