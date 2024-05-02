@@ -200,10 +200,19 @@ process.FEVTDEBUGHLToutput.outputCommands = cms.untracked.vstring(
     "drop *",
 
     # RECO stuff to keep
+    'keep *_genParticles_*_*',
+    'keep CaloParticles_mix_*_*',
+
     "keep *_particleFlowClusterHGCal_*_RECO",
     "keep *_particleFlowSuperClusterHGCal_*_RECO",
 
-    # reRECO stuff
+
+    #### reRECO stuff
+    # superclustering stuff
+    "keep *_ticlTracksterLinksSuperclustering_*_reRECO",
+    "keep *_ticlEGammaSuperClusterProducer_*_reRECO",
+
+    # egamma stuff
     "keep *_ecalDrivenElectronSeeds_*_reRECO",
     "keep *_mergedSuperClustersHGC_*_reRECO",
 
@@ -215,6 +224,7 @@ process.FEVTDEBUGHLToutput.outputCommands = cms.untracked.vstring(
     # "keep *_pfTrack_*_reRECO", # complains about stuff missing
     "keep *_pfTrackElec_*_reRECO",
 
+    "keep *_ecalDrivenGsfElectronCoresHGC_*_reRECO",
     "keep *_ecalDrivenGsfElectronsHGC_*_reRECO",
     # "keep *_cleanedEcalDrivenGsfElectronsHGC_*_reRECO",
     # "keep *_patElectronsHGC_*_reRECO",

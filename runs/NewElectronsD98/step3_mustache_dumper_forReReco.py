@@ -23,8 +23,8 @@ process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('Configuration.StandardSequences.RecoSim_cff')
 process.load('PhysicsTools.PatAlgos.slimming.metFilterPaths_cff')
-process.load('Configuration.StandardSequences.PATMC_cff')
-process.load('Configuration.StandardSequences.Validation_cff')
+#process.load('Configuration.StandardSequences.PATMC_cff')
+#process.load('Configuration.StandardSequences.Validation_cff')
 process.load('DQMServices.Core.DQMStoreNonLegacy_cff')
 process.load('DQMOffline.Configuration.DQMOfflineMC_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -115,40 +115,17 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T25', ''
 process.raw2digi_step = cms.Path(process.RawToDigi)
 process.reconstruction_step = cms.Path(process.reconstruction)
 process.recosim_step = cms.Path(process.recosim)
-process.prevalidation_step = cms.Path(process.baseCommonPreValidation)
-process.prevalidation_step1 = cms.Path(process.globalPrevalidationTracking)
-process.prevalidation_step2 = cms.Path(process.globalPrevalidationMuons)
-process.prevalidation_step3 = cms.Path(process.globalPrevalidationJetMETOnly)
-process.prevalidation_step4 = cms.Path(process.prebTagSequenceMC)
-process.prevalidation_step5 = cms.Path(process.produceDenoms)
-process.prevalidation_step6 = cms.Path(process.globalPrevalidationHCAL)
-process.prevalidation_step7 = cms.Path(process.globalPrevalidationHGCal)
-process.prevalidation_step8 = cms.Path(process.prevalidation)
-process.validation_step = cms.EndPath(process.baseCommonValidation)
-process.validation_step1 = cms.EndPath(process.globalValidationTrackingOnly)
-process.validation_step2 = cms.EndPath(process.globalValidationMuons)
-process.validation_step3 = cms.EndPath(process.globalValidationJetMETonly)
-process.validation_step4 = cms.EndPath(process.electronValidationSequence)
-process.validation_step5 = cms.EndPath(process.photonValidationSequence)
-process.validation_step6 = cms.EndPath(process.bTagPlotsMCbcl)
-process.validation_step7 = cms.EndPath()
-process.validation_step8 = cms.EndPath(process.globalValidationHCAL)
-process.validation_step9 = cms.EndPath(process.globalValidationHGCal)
-process.validation_step10 = cms.EndPath(process.globalValidationMTD)
-process.validation_step11 = cms.EndPath(process.validationECALPhase2)
-process.validation_step12 = cms.EndPath(process.trackerphase2ValidationSource)
-process.validation_step13 = cms.EndPath(process.validation)
-process.dqmoffline_step = cms.EndPath(process.DQMOfflineBeam)
-process.dqmoffline_1_step = cms.EndPath(process.DQMOfflineTracking)
-process.dqmoffline_2_step = cms.EndPath(process.DQMOuterTracker)
-process.dqmoffline_3_step = cms.EndPath(process.DQMOfflineTrackerPhase2)
-process.dqmoffline_4_step = cms.EndPath(process.DQMOfflineMuon)
-process.dqmoffline_5_step = cms.EndPath(process.DQMOfflineHcal)
-process.dqmoffline_6_step = cms.EndPath(process.DQMOfflineHcal2)
-process.dqmoffline_7_step = cms.EndPath(process.DQMOfflineEGamma)
-process.dqmoffline_8_step = cms.EndPath(process.DQMOfflineL1TPhase2)
-process.dqmoffline_9_step = cms.EndPath(process.HLTMonitoring)
-process.dqmofflineOnPAT_step = cms.EndPath(process.PostDQMOffline)
+
+process.load("Validation.RecoTrack.TrackValidation_cff")
+process.load("Validation.Configuration.hgcalSimValid_cff")
+process.prevalidation_hgcal = cms.Sequence(process.tracksValidation, process.hgcalAssociators, process.ticlSimTrackstersTask)
+process.prevalidation_hgcal_step = cms.Path(process.prevalidation_hgcal)
+
+process.load("SimGeneral.TrackingAnalysis.simHitTPAssociation_cfi")
+process.load("Validation.RecoEgamma.egammaValidation_cff")
+process.prevalidation_egamma_step = cms.Path(process.simHitTPAssocProducer)
+process.validation_egamma_step = cms.Path(process.egammaValidation)
+
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 
@@ -166,24 +143,18 @@ process.load("RecoHGCal.TICL.superclusteringSampleDumper_cfi")
 process.superclusteringSampleDumper_step = cms.EndPath(process.superclusteringSampleDumper)
 
 # needs tracksterSimTracksterAssociationLinkingPU and is slow
-del process.hgcalValidator
+try:
+    del process.hgcalValidator
+except KeyError: pass
 
 # Schedule definition
 process.schedule = cms.Schedule(process.raw2digi_step,process.reconstruction_step,process.recosim_step,
-    process.prevalidation_step,
-    process.prevalidation_step1,process.prevalidation_step2,process.prevalidation_step3,process.prevalidation_step4,process.prevalidation_step5,process.prevalidation_step6,process.prevalidation_step7,process.prevalidation_step8,
-    process.validation_step,
-    #process.validation_step1,process.validation_step2,process.validation_step3,process.validation_step4,process.validation_step5,process.validation_step6,process.validation_step7,process.validation_step8,
-    process.validation_step9,
-    #process.validation_step10,process.validation_step11,process.validation_step12,process.validation_step13,
-    #process.dqmoffline_step,
-    #process.dqmoffline_1_step,process.dqmoffline_2_step,process.dqmoffline_3_step,process.dqmoffline_4_step,process.dqmoffline_5_step,process.dqmoffline_6_step,
-    process.dqmoffline_7_step,
-    #process.dqmoffline_8_step,process.dqmoffline_9_step,process.dqmofflineOnPAT_step,
+    process.prevalidation_hgcal_step,process.prevalidation_egamma_step,
+    process.validation_egamma_step,
     process.FEVTDEBUGHLToutput_step,process.DQMoutput_step,process.ticlDumper_step, process.superclusteringSampleDumper_step)
-process.schedule.associate(process.patTask)
-from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
-associatePatAlgosToolsTask(process)
+# process.schedule.associate(process.patTask)
+# from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
+# associatePatAlgosToolsTask(process)
 
 #Setup FWK for multithreaded
 process.options.numberOfThreads = 8
@@ -202,10 +173,10 @@ process = setCrossingFrameOn(process)
 # customisation of the process.
 
 # Automatic addition of the customisation function from PhysicsTools.PatAlgos.slimming.miniAOD_tools
-from PhysicsTools.PatAlgos.slimming.miniAOD_tools import miniAOD_customizeAllMC 
+# from PhysicsTools.PatAlgos.slimming.miniAOD_tools import miniAOD_customizeAllMC 
 
-#call to customisation function miniAOD_customizeAllMC imported from PhysicsTools.PatAlgos.slimming.miniAOD_tools
-process = miniAOD_customizeAllMC(process)
+# #call to customisation function miniAOD_customizeAllMC imported from PhysicsTools.PatAlgos.slimming.miniAOD_tools
+# process = miniAOD_customizeAllMC(process)
 
 # End of customisation functions
 
