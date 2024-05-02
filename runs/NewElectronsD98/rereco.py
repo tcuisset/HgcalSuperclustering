@@ -191,10 +191,10 @@ from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEar
 process = customiseEarlyDelete(process)
 # End adding early deletion
 
-process.Timing = cms.Service("Timing",
-  summaryOnly = cms.untracked.bool(False),
-  useJobReport = cms.untracked.bool(True)
-)
+# process.Timing = cms.Service("Timing",
+#   summaryOnly = cms.untracked.bool(False),
+#   useJobReport = cms.untracked.bool(True)
+# )
 
 process.FEVTDEBUGHLToutput.outputCommands = cms.untracked.vstring(
     "drop *",
