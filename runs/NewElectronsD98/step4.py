@@ -127,7 +127,15 @@ del process.photonPostprocessing
 del process.pfPhotonPostprocessing
 
 # Schedule definition
-process.schedule = cms.Schedule(process.postValidation_common_step,process.postValidationTracking_step,process.postValidation_muons_step,process.postValidation_JetMET_step,process.electronPostValidationSequence_step,process.photonPostProcessor_step,process.bTagCollectorSequenceMCbcl_step,process.runTauEff_step,process.postValidation_HCAL_step,process.hgcalValidatorPostProcessor_step,process.mtdValidationPostProcessor_step,process.trackerphase2ValidationHarvesting_step,process.validationHarvesting,process.DQMHarvestBeam_step,process.DQMHarvestTracking_step,process.DQMHarvestOuterTracker_step,process.DQMHarvestTrackerPhase2_step,process.DQMHarvestMuon_step,process.DQMCertMuon_step,process.DQMHarvestHcal_step,process.DQMHarvestHcal2_step,process.DQMHarvestEGamma_step,process.DQMCertEGamma_step,process.DQMHarvestL1TPhase2_step,process.HLTMonitoringClient_step,process.dqmsave_step)
+process.schedule = cms.Schedule(process.postValidation_common_step,
+    #process.postValidationTracking_step,process.postValidation_muons_step,process.postValidation_JetMET_step,
+    process.electronPostValidationSequence_step,process.photonPostProcessor_step,
+    #process.bTagCollectorSequenceMCbcl_step,process.runTauEff_step,process.postValidation_HCAL_step,
+    process.hgcalValidatorPostProcessor_step,process.mtdValidationPostProcessor_step,
+    #process.trackerphase2ValidationHarvesting_step,process.validationHarvesting,process.DQMHarvestBeam_step,process.DQMHarvestTracking_step,process.DQMHarvestOuterTracker_step,process.DQMHarvestTrackerPhase2_step,process.DQMHarvestMuon_step,process.DQMCertMuon_step,process.DQMHarvestHcal_step,process.DQMHarvestHcal2_step,
+    process.DQMHarvestEGamma_step,process.DQMCertEGamma_step,
+    #process.DQMHarvestL1TPhase2_step,process.HLTMonitoringClient_step,
+    process.dqmsave_step)
 from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
 associatePatAlgosToolsTask(process)
 

@@ -136,7 +136,7 @@ process.reconstruction_trackingOnly_step = cms.Path(process.reconstruction_track
 
 # Electron validation
 process.load("Validation.RecoEgamma.electronValidationSequence_cff")
-del process.electronMcSignalValidatorPt1000 # we need gedGsfElectrons rereco for this (could be done)
+# del process.electronMcSignalValidatorPt1000 # we need gedGsfElectrons rereco for this (could be done)
 process.electronValidationSequence_step = cms.Path(process.mergedSuperClustersHGC + process.electronValidationSequence)
 
 del process.ecalDetailedTimeRecHit
