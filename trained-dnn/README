@@ -8,3 +8,8 @@ ln -s ../../../../../../../trained-dnn/current/ tf_models
 ~~~
 
 Put the models in `trained-dnn/current`
+
+For automatic inference during hyperparameter search : 
+~~~
+ln -s /grid_mnt/data_cms_upgrade/cuisset/supercls/dnn_training/models models_hyperparam_search
+~~~

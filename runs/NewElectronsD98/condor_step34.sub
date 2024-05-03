@@ -1,7 +1,7 @@
 
 # Parameters (need absolute paths)
 ConfigPath = /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/NewElectronsD98
-Version = v1-3e937-mustache
+Version = v1-65772-mustache
 
 executable = $(ConfigPath)/condor_step34.sh
 transfer_input_files = $(ConfigPath)/step3_mustache_dumper_forReReco.py
@@ -21,4 +21,4 @@ WNTag = $(WNTag:el7)
 include : /opt/exp_soft/cms/t3/t3queue |
 
 InputFolder = /grid_mnt/data_cms_upgrade/cuisset/supercls/NewElectronsD98/v1-389c8f672
-queue SampleId from seq 1 50 |
+queue SampleId from seq 21 50 |

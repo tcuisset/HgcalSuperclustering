@@ -1,7 +1,7 @@
 
 # Parameters (need absolute paths)
 ConfigPath = /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/NewElectronsD98
-Version = v1-389c8f672
+Version = v2-65772
 
 executable = $(ConfigPath)/condor_toStep2.sh
 transfer_input_files = $(ConfigPath)/SingleElectron.py, $(ConfigPath)/step2.py
@@ -20,5 +20,4 @@ T3Queue = $(T3Queue:short)
 WNTag = $(WNTag:el7)
 include : /opt/exp_soft/cms/t3/t3queue |
 
-priority = -20
-queue SampleId from seq 51 200 |
+queue SampleId from seq 2 50 |
