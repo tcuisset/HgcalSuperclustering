@@ -130,7 +130,7 @@ del process.pfPhotonPostprocessing
 # Schedule definition
 process.schedule = cms.Schedule(process.postValidation_common_step,
     #process.postValidationTracking_step,process.postValidation_muons_step,process.postValidation_JetMET_step,
-    #process.electronPostValidationSequence_step,
+    process.electronPostValidationSequence_step,
     process.photonPostProcessor_step,
     #process.bTagCollectorSequenceMCbcl_step,process.runTauEff_step,process.postValidation_HCAL_step,
     process.hgcalValidatorPostProcessor_step,process.mtdValidationPostProcessor_step,
@@ -140,11 +140,15 @@ process.schedule = cms.Schedule(process.postValidation_common_step,
     process.dqmsave_step)
 
 import numpy as np
-WPs = list(np.linspace(0., 0.1, 20, endpoint=False)) + list(np.linspace(0.1, 0.9, 25, endpoint=False)) + list(np.linspace(0.9, 1., 20))
+WPs = list(np.linspace(0., 0.1, 10, endpoint=False)) + list(np.linspace(0.1, 0.9, 8, endpoint=False)) + list(np.linspace(0.9, 1., 11))
 for wp in WPs:
     tag = "DNNWP" + str(wp).replace(".", "p")
-    setattr(process, f"electronMcSignalPostValidator{tag}", process.electronMcSignalPostValidator.clone(InputFolderName=cms.string(f"EgammaV{tag}/ElectronMcFakeValidator"), OutputFolderName=cms.string(f"EgammaV{tag}/ElectronMcFakeValidator")))
+    setattr(process, f"electronMcSignalPostValidator{tag}", process.electronMcSignalPostValidator.clone(InputFolderName=cms.string(f"EgammaV{tag}/ElectronMcSignalValidator"), OutputFolderName=cms.string(f"EgammaV{tag}/ElectronMcSignalValidator")))
+    setattr(process, f"electronMcSignalPostValidatorPt1000{tag}", process.electronMcSignalPostValidatorPt1000.clone(InputFolderName=cms.string(f"EgammaV{tag}/ElectronMcSignalValidatorPt1000"), OutputFolderName=cms.string(f"EgammaV{tag}/ElectronMcSignalValidatorPt1000")))
+    setattr(process, f"electronMcFakePostValidator{tag}", process.electronMcFakePostValidator.clone(InputFolderName=cms.string(f"EgammaV{tag}/ElectronMcFakeValidator"), OutputFolderName=cms.string(f"EgammaV{tag}/ElectronMcFakeValidator")))
     process.electronPostValidationSequence_step.insert(-1, getattr(process, f"electronMcSignalPostValidator{tag}"))
+    process.electronPostValidationSequence_step.insert(-1, getattr(process, f"electronMcSignalPostValidatorPt1000{tag}"))
+    process.electronPostValidationSequence_step.insert(-1, getattr(process, f"electronMcFakePostValidator{tag}"))
 del process.electronMcSignalPostValidator
 del process.electronMcFakePostValidator
 del process.electronMcSignalPostValidatorPt1000

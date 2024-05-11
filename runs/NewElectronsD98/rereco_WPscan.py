@@ -155,11 +155,11 @@ process.schedule = cms.Schedule(process.pfRecHit_step,
 
 # Adding the multiple egamma paths for each working point
 import numpy as np
-WPs = list(np.linspace(0., 0.1, 20, endpoint=False)) + list(np.linspace(0.1, 0.9, 25, endpoint=False)) + list(np.linspace(0.9, 1., 20))
+WPs = list(np.linspace(0., 0.1, 10, endpoint=False)) + list(np.linspace(0.1, 0.9, 8, endpoint=False)) + list(np.linspace(0.9, 1., 11))
 #DNN_MODEL_PATH = ""
 for wp in WPs:
     tag = "DNNWP" + str(wp).replace(".", "p")
-    setattr(process, f"ticlTracksterLinksSuperclustering{tag}", process.ticlTracksterLinksSuperclustering.clone(linkingPSet=dict( nnWorkingPoint=cms.double(wp)))) # onnxModelPath=DNN_MODEL_PATH,
+    setattr(process, f"ticlTracksterLinksSuperclustering{tag}", process.ticlTracksterLinksSuperclustering.clone(linkingPSet=dict(onnxModelPath=cms.FileInPath(__DNN_MODEL_PATH__), nnWorkingPoint=cms.double(wp)))) # ,
     setattr(process, f"ticlEGammaSuperClusterProducer{tag}", process.ticlEGammaSuperClusterProducer.clone(ticlSuperClusters=cms.InputTag(f"ticlTracksterLinksSuperclustering{tag}")))
     setattr(process, f"ecalDrivenElectronSeeds{tag}", process.ecalDrivenElectronSeeds.clone(endcapSuperClusters=cms.InputTag(f"ticlEGammaSuperClusterProducer{tag}")))
     setattr(process, f"electronMergedSeeds{tag}", process.electronMergedSeeds.clone(EcalBasedSeeds=cms.InputTag(f"ecalDrivenElectronSeeds{tag}")))
@@ -259,10 +259,10 @@ from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEar
 process = customiseEarlyDelete(process)
 # End adding early deletion
 
-process.Timing = cms.Service("Timing",
-  summaryOnly = cms.untracked.bool(False),
-  useJobReport = cms.untracked.bool(True)
-)
+# process.Timing = cms.Service("Timing",
+#   summaryOnly = cms.untracked.bool(False),
+#   useJobReport = cms.untracked.bool(True)
+# )
 
 process.FEVTDEBUGHLToutput.outputCommands = cms.untracked.vstring(
     "drop *",
@@ -274,28 +274,6 @@ process.FEVTDEBUGHLToutput.outputCommands = cms.untracked.vstring(
     "keep *_particleFlowClusterHGCal_*_RECO",
     "keep *_particleFlowSuperClusterHGCal_*_RECO",
 
-
-    #### reRECO stuff
-    # superclustering stuff
-    "keep *_ticlTracksterLinksSuperclustering_*_reRECO",
-    "keep *_ticlEGammaSuperClusterProducer_*_reRECO",
-
-    # egamma stuff
-    "keep *_ecalDrivenElectronSeeds_*_reRECO",
-    "keep *_mergedSuperClustersHGC_*_reRECO",
-
-    "keep *_electronMergedSeeds_*_reRECO",
-    "keep *_photonCoreHGC_*_reRECO",
-    "keep *_photonsHGC_*_reRECO",
-    "keep *_electronCkfTrackCandidates_*_reRECO",
-    "keep *_electronGsfTracks_*_reRECO",
-    # "keep *_pfTrack_*_reRECO", # complains about stuff missing
-    "keep *_pfTrackElec_*_reRECO",
-
-    "keep *_ecalDrivenGsfElectronCoresHGC_*_reRECO",
-    "keep *_ecalDrivenGsfElectronsHGC_*_reRECO",
-    # "keep *_cleanedEcalDrivenGsfElectronsHGC_*_reRECO",
-    # "keep *_patElectronsHGC_*_reRECO",
 )
 
 

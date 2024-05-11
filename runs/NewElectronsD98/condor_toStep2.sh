@@ -13,15 +13,17 @@ from IOMC.RandomEngine.RandomServiceHelper import RandomNumberServiceHelper
 randSvc = RandomNumberServiceHelper(process.RandomNumberGeneratorService) 
 randSvc.populate() 
 
-process.generator.firstRun = cms.untracked.uint32($INDEX)
+process.source.firstLuminosityBlock = cms.untracked.uint32($INDEX)
+
+process.generator.PGunParameters.ParticleID = cms.vint32($ParticleId)
 EOF
 cmsRun SingleElectron.py
 
-# cat  <<EOF >>step2.py
-# from IOMC.RandomEngine.RandomServiceHelper import RandomNumberServiceHelper 
-# randSvc = RandomNumberServiceHelper(process.RandomNumberGeneratorService) 
-# randSvc.populate() 
-# EOF
+cat  <<EOF >>step2.py
+from IOMC.RandomEngine.RandomServiceHelper import RandomNumberServiceHelper 
+randSvc = RandomNumberServiceHelper(process.RandomNumberGeneratorService) 
+randSvc.populate() 
+EOF
 cmsRun step2.py
 
 mkdir -p /grid_mnt/data_cms_upgrade/cuisset/supercls/NewElectronsD98/$VERSION

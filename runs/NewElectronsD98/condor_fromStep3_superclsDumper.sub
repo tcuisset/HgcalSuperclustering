@@ -1,0 +1,26 @@
+
+# Parameters (need absolute paths)
+ConfigPath = /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/NewElectronsD98
+Version = v2-65772-fixAngle
+
+executable = $(ConfigPath)/condor_fromStep3_superclsDumper.sh
+transfer_input_files = $(ConfigPath)/fromStep3_superclsSampleDumper.py
+environment = "INDEX=$(SampleId) VERSION=$(Version) INPUT_FOLDER=$(InputFolder)"
+universe = vanilla
+output = logs-fromStep3-dumper/step34_$(Version)-$(SampleId).out
+error = logs-fromStep3-dumper/step34_$(Version)-$(SampleId).err
+log = logs-fromStep3-dumper/step34_$(Version)-$(SampleId).log
+transfer_output_files = ""
+
+request_memory = 1G
+# can only be 1 or 8 on LLR T3
+request_cpus = 1
+
+T3Queue = $(T3Queue:short)
+WNTag = $(WNTag:el7)
+include : /opt/exp_soft/cms/t3/t3queue |
+
+
+max_retries = 1
+InputFolder = /grid_mnt/data_cms_upgrade/cuisset/supercls/NewElectronsD98/v2-65772-mustache
+queue SampleId from seq 101 600 |

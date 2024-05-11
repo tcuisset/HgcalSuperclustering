@@ -6,13 +6,13 @@ Version = v2-65772
 executable = $(ConfigPath)/condor_toStep2.sh
 transfer_input_files = $(ConfigPath)/SingleElectron.py, $(ConfigPath)/step2.py
 transfer_output_files = ""
-environment = "INDEX=$(SampleId) VERSION=$(Version)"
+environment = "INDEX=$(SampleId) VERSION=$(Version) ParticleId=$(ParticleId)"
 universe = vanilla
 output = logs/$(Version)-$(SampleId).out
 error = logs/$(Version)-$(SampleId).err
 log = logs/$(Version)-$(SampleId).log
 
-request_memory = 10G
+request_memory = 20G
 # can only be 1 or 8 on LLR T3
 request_cpus = 8
 
@@ -20,4 +20,10 @@ T3Queue = $(T3Queue:short)
 WNTag = $(WNTag:el7)
 include : /opt/exp_soft/cms/t3/t3queue |
 
-queue SampleId from seq 2 50 |
+priority=-15
+
+ParticleId = 11
+queue SampleId from seq 401 500 |
+
+ParticleId = -11
+queue SampleId from seq 501 600 |
