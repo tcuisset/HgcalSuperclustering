@@ -1,3 +1,4 @@
+""" Cruijff function fits for energy resolution """
 from functools import partial
 import dataclasses
 from dataclasses import dataclass

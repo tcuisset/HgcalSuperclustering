@@ -1,3 +1,4 @@
+""" Tools to read recoToSim associations (ie trackster -> SimTrackster) from TICLDumper output """
 import awkward as ak
 import pandas as pd
 

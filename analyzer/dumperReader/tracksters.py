@@ -1,3 +1,4 @@
+""" Tools for doing dataframes of tracksters from TICLDumper output """
 import awkward as ak
 import pandas as pd
 import numpy as np

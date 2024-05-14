@@ -1,3 +1,4 @@
+""" Tools to read simToReco associations (ie SimTrackster -> trackster) from TICLDumper output """
 import pandas as pd
 
 from .tracksters import supercluster_joinTracksters

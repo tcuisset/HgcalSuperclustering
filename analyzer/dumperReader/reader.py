@@ -32,6 +32,7 @@ def superclustersToEnergy(supercls_ts_idxs:ak.Array, tracksters:ak.Array) -> ak.
 
     
 class DumperReader:
+    """ Reads TICLDumper output """
     class MultiFileReader:
         def __init__(self, files:list[uproot.ReadOnlyDirectory]):
             self.files = files
@@ -56,11 +57,11 @@ class DumperReader:
     
     @property
     def nEvents(self):
-        return self.fileDir["trackstersCLUE3DEM"].num_entries
+        return self.fileDir["trackstersCLUE3DHigh"].num_entries
 
     @cached_property
     def tracksters(self) -> ak.Array:
-        return self.fileDir["tracksters"].arrays()
+        return self.fileDir["trackstersCLUE3DHigh"].arrays()
     
     @cached_property
     def tracksters_zipped(self) -> ak.Array:
