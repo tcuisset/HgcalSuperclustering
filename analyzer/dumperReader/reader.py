@@ -34,6 +34,7 @@ def superclustersToEnergy(supercls_ts_idxs:ak.Array, tracksters:ak.Array) -> ak.
 class DumperReader:
     """ Reads TICLDumper output """
     class MultiFileReader:
+        """ From a list of files opened with uproot, find the the first one which has the requested key (for finding the file having the ticlDumper among different files holding the same events) """
         def __init__(self, files:list[uproot.ReadOnlyDirectory]):
             self.files = files
         
@@ -47,6 +48,11 @@ class DumperReader:
             raise KeyError(*excpts)
             
     def __init__(self, file:str|uproot.ReadOnlyDirectory|list[uproot.ReadOnlyDirectory], directoryName:str="ticlDumper") -> None:
+        """ file can be : 
+         - a str : opens the file and loads ticlDumper
+         - an already opened uproot file
+         - a list of uproot files, in which case it opens them in order and uses the first one that has ticlDumper in it
+        """
         try:
             self.fileDir = file[directoryName]
         except TypeError:
