@@ -155,7 +155,7 @@ process.schedule = cms.Schedule(process.pfRecHit_step,
 
 # Adding the multiple egamma paths for each working point
 import numpy as np
-WPs = list(np.linspace(0., 0.1, 10, endpoint=False)) + list(np.linspace(0.1, 0.9, 8, endpoint=False)) + list(np.linspace(0.9, 1., 11))
+WPs = [0.05] + list(np.linspace(0.1, 0.9, 8, endpoint=False)) + list(np.linspace(0.9, 1., 11))
 #DNN_MODEL_PATH = ""
 for wp in WPs:
     tag = "DNNWP" + str(wp).replace(".", "p")
@@ -269,7 +269,7 @@ process.FEVTDEBUGHLToutput.outputCommands = cms.untracked.vstring(
 
     # RECO stuff to keep
     'keep *_genParticles_*_*',
-    'keep CaloParticles_mix_*_*',
+    #'keep CaloParticles_mix_*_*', #huge
 
     "keep *_particleFlowClusterHGCal_*_RECO",
     "keep *_particleFlowSuperClusterHGCal_*_RECO",
@@ -280,22 +280,24 @@ process.FEVTDEBUGHLToutput.outputCommands = cms.untracked.vstring(
 for wp in WPs:
     tag = "DNNWP" + str(wp).replace(".", "p")
     process.FEVTDEBUGHLToutput.outputCommands.extend([
+        # stuff is commented out to reduce FEVT size
         f"keep *_ticlTracksterLinksSuperclustering{tag}_*_reRECO",
         f"keep *_ticlEGammaSuperClusterProducer{tag}_*_reRECO",
+        f"drop recoCaloClusters_ticlEGammaSuperClusterProducer{tag}_*_reRECO", # very large output (basically all tracksters) that is identical across WP
 
         # egamma stuff
-        f"keep *_ecalDrivenElectronSeeds{tag}_*_reRECO",
+        # f"keep *_ecalDrivenElectronSeeds{tag}_*_reRECO",
         f"keep *_mergedSuperClustersHGC{tag}_*_reRECO",
 
-        f"keep *_electronMergedSeeds{tag}_*_reRECO",
-        f"keep *_photonCoreHGC{tag}_*_reRECO",
+        # f"keep *_electronMergedSeeds{tag}_*_reRECO",
+        # f"keep *_photonCoreHGC{tag}_*_reRECO",
         f"keep *_photonsHGC{tag}_*_reRECO",
-        f"keep *_electronCkfTrackCandidates{tag}_*_reRECO",
-        f"keep *_electronGsfTracks{tag}_*_reRECO",
+        # f"keep *_electronCkfTrackCandidates{tag}_*_reRECO",
+        # f"keep *_electronGsfTracks{tag}_*_reRECO",
         # "keep *_pfTrack_*_reRECO", # complains about stuff missing
-        f"keep *_pfTrackElec{tag}_*_reRECO",
+        # f"keep *_pfTrackElec{tag}_*_reRECO", #large output
 
-        f"keep *_ecalDrivenGsfElectronCoresHGC{tag}_*_reRECO",
+        # f"keep *_ecalDrivenGsfElectronCoresHGC{tag}_*_reRECO",
         f"keep *_ecalDrivenGsfElectronsHGC{tag}_*_reRECO",
         # "keep *_cleanedEcalDrivenGsfElectronsHGC_*_reRECO",
         # "keep *_patElectronsHGC_*_reRECO",

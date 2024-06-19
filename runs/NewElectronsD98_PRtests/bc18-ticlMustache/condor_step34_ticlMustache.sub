@@ -1,0 +1,32 @@
+
+# Parameters (need absolute paths)
+ConfigPath = /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/NewElectronsD98_PRtests/bc18-ticlMustache
+Version = ticlMustache-bc18
+CmsswBasePath = /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/superclsPR/ticlMustache
+ProcessModifier = ticl_v5
+PyConfigFile = step3.py
+T3Queue = long
+
+executable = $(ConfigPath)/condor_step34.sh
+transfer_input_files = $(ConfigPath)/$(PyConfigFile)
+environment = "INDEX=$(SampleId) VERSION=$(Version) INPUT_FOLDER=$(InputFolder) CMSSW_BASE_PATH=$(CmsswBasePath) PY_CONFIG_FILE=$(PyConfigFile) PROCESS_MODIFIER=$(ProcessModifier)"
+universe = vanilla
+include : mkdir -p logs-$(Version) |
+output = logs-$(Version)/step34_$(SampleId).out
+error = logs-$(Version)/step34_$(SampleId).err
+log = logs-$(Version)/step34_$(SampleId).log
+transfer_output_files = ""
+
+request_memory = 17G
+# can only be 1 or 8 on LLR T3
+request_cpus = 8
+
+WNTag = el7
+include : /opt/exp_soft/cms/t3/t3queue |
+
+requirements = regexp("llrgrwnvm[0-9]+.in2p3.fr", Machine) == FALSE
+
+#priority = -30
+max_retries = 1
+InputFolder = /grid_mnt/data_cms_upgrade/cuisset/supercls/NewElectronsD98/v2-65772
+queue SampleId from seq 25 25 |

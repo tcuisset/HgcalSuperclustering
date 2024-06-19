@@ -1,0 +1,32 @@
+
+# Parameters (need absolute paths)
+ConfigPath = /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/NewElectronsD98
+Version = v2-106b918-fixAngle-dnnOutput
+
+executable = $(ConfigPath)/condor_fromStep3_ticlDumper.sh
+transfer_input_files = $(ConfigPath)/rereco_ticlDumper.py
+environment = "INDEX=$(SampleId) VERSION=$(Version) INPUT_FOLDER=$(InputFolder) MODEL_FILENAME=$(ModelFilename) DNN_WP=$(DnnWP)"
+universe = vanilla
+output = logs-fromStep3-ticlDumper/step34_$(Version)-$(SampleId).out
+error = logs-fromStep3-ticlDumper/step34_$(Version)-$(SampleId).err
+log = logs-fromStep3-ticlDumper/step34_$(Version)-$(SampleId).log
+transfer_output_files = ""
+
+request_memory = 10G
+# can only be 1 or 8 on LLR T3
+request_cpus = 8
+
+requirements = regexp("llrgrwnvm[0-9]+.in2p3.fr", Machine) == FALSE
+
+T3Queue = $(T3Queue:short)
+WNTag = $(WNTag:el7)
+include : /opt/exp_soft/cms/t3/t3queue |
+
+
+max_retries = 0
+InputFolder = /grid_mnt/data_cms_upgrade/cuisset/supercls/NewElectronsD98/v2-65772-mustache
+
+ModelFilename = supercls_v2_May16_22-18-09.onnx
+DnnWP = 0.3
+queue SampleId from seq 301 600 |
+
