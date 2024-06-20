@@ -98,7 +98,7 @@ def makeDatasetsTrainVal_fromCache(inputFolder:str, trainingLossType:Literal["bi
     if cached_dataset_path.is_file():
         return torch.load(cached_dataset_path, map_location="cpu")
     else:
-        dataset_ak = makeTargetContinuous(makeTargetBinary(removeBadSeeds(selectSeedOnly(zipDataset(loadDataset_ak(inputFolder))))))
+        dataset_ak = makeTargetContinuous(makeTargetBinary(removeBadSeeds(selectSeedOnly(zipDataset(loadDataset_ak({inputFolder:"superclusteringSampleDumper/superclusteringTraining"}))))))
         dataset_dict = makeDatasetsTrainVal(dataset_ak, trainingLossType=trainingLossType, **kwargs)
         torch.save(dataset_dict, cached_dataset_path)
         return dataset_dict

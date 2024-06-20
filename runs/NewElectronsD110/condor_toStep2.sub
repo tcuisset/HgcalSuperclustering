@@ -1,0 +1,32 @@
+
+# Parameters (need absolute paths)
+ConfigPath = /grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/NewElectronsD110
+Version = v1-b3db
+
+executable = $(ConfigPath)/condor_toStep2.sh
+transfer_input_files = $(ConfigPath)/SingleElectron.py, $(ConfigPath)/step2.py
+transfer_output_files = ""
+environment = "INDEX=$(SampleId) VERSION=$(Version) ParticleId=$(ParticleId)"
+universe = vanilla
+include : mkdir -p logs-toStep2-$(Version) |
+output = logs-toStep2-$(Version)/$(SampleId).out
+error = logs-toStep2-$(Version)/$(SampleId).err
+log = logs-toStep2-$(Version)/$(SampleId).log
+
+request_memory = 20G
+# can only be 1 or 8 on LLR T3
+request_cpus = 8
+
+T3Queue = $(T3Queue:short)
+WNTag = $(WNTag:el7)
+include : /opt/exp_soft/cms/t3/t3queue |
+
+priority=-30
+max_retries = 1
+
+ParticleId = 11
+queue SampleId from seq 401 450 |
+
+ParticleId = -11
+queue SampleId from seq 451 500 |
+

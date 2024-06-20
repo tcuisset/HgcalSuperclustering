@@ -31,3 +31,19 @@ python3 -m dnn_training.hyperparameter_scan -i /grid_mnt/data_cms_upgrade/cuisse
 
 ## dashboard
 optuna-dashboard /grid_mnt/data_cms_upgrade/cuisset/supercls/dnn_training/hyperparams-v3/journal_optuna.log
+
+
+
+
+
+######################### CMSSW inference
+
+
+python3 -m dnn_training.cmsswInference --cmssw "/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/CMSSW_14_1_X_2024-04-29-1100" \
+        --cmsswConfig "/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/NewElectronsD98/rereco_WPscan.py" --cmsswConfigHarvesting "/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/runs/NewElectronsD98/step4_WPscan.py" \
+        --DQMForComparison "/grid_mnt/data_cms_upgrade/cuisset/supercls/NewElectronsD98/v2-65772-mustache/DQM/DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root" \
+        --cmsswInputFiles $(for i in `seq 1 30`; do echo -n "/grid_mnt/data_cms_upgrade/cuisset/supercls/NewElectronsD98/v2-65772-mustache/step3_${i}.root "; done) \
+        --output "/grid_mnt/data_cms_upgrade/cuisset/supercls/dnn_training/test/inference-tests/v1h" 
+        --model "/grid_mnt/vol_home/llr/cms/cuisset/hgcal/supercls/repoForJobs/trained-dnn/current/supercls_v2_Apr05_14-48.onnx" 
+        
+        

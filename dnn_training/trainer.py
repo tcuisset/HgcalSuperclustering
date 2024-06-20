@@ -14,6 +14,7 @@ import matplotlib
 matplotlib.rcParams['figure.figsize'] = (6, 5)
 import matplotlib.pyplot as plt
 import copy
+from collections import defaultdict
 
 from dnn_training.dataset import *
 
@@ -161,15 +162,20 @@ def makeLossOptuna(trial:Trial):
 
 
 class Trainer:
-    def __init__(self, model:nn.Module, loss:BaseLoss, trial:Trial, log_output=None, run_name=None, device="cpu", profiler=None, earlyStopping=True):
-        """ profiler : can be used with pytorch profiler """
+    def __init__(self, model:nn.Module, loss:BaseLoss, trial:Trial, log_output=None, run_name=None, device="cpu", profiler=None, trialReportMode:str|None=None):
+        """ 
+        Parameters : 
+         - profiler : can be used with pytorch profiler
+         - trialReportMode : can be None (nothing is reported to Optuna), a metric name : reports the metric at every validation
+        """
         self.model = model
         self.loss = loss
         self.trial = trial
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=trial.suggest_float("lr", 1e-4, 1e-2, log=True))
-        self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, "min", patience=50, factor=0.5)
+        self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, "min", patience=10, factor=0.5)
         self.device = device
         self.profiler = profiler
+        self.trialReportMode = trialReportMode
         if log_output is None:
             log_output = Path.cwd()
         else:
@@ -178,7 +184,9 @@ class Trainer:
             from datetime import datetime
             run_name = f"{trial.number}-" + datetime.now().strftime("%b%d_%H-%M-%S")
         self.log_output = log_output / run_name
-        self.writer = SummaryWriter(log_dir=self.log_output, )
+        self.writer = SummaryWriter(log_dir=self.log_output)
+        self.trial.set_user_attr("run_name", run_name)
+        self.trial.set_user_attr("log_output", str(self.log_output))
 
         self.train_losses_currentEpoch = []
         self.train_batch_sizes_currentEpoch = [] # keeping the batch sizes so we have a proper average loss 
@@ -192,15 +200,40 @@ class Trainer:
         self.trial_report_step = 0
         self.trial_last_report = np.inf
         self.trial_best_report = np.inf
-        self.best_val_metrics = {} # keeps values of best metrics seen so far
+        self.all_metrics = defaultdict(dict)
+        """ metric_name -> epoch -> metric_value """
+        self.best_val_metrics_values = {}
+        """ keeps values of best metrics seen so far. Dict metric name -> value """
+        self.best_val_metrics_epochs = {}
+        """ keeps values of best metrics seen so far. Dict metric name -> best epoch """
 
         # Validation settings
+        self.validation_frequency = 5
         self.val_dnn_wps = [0.1, 0.2, 0.3, 0.5, 0.7, 0.8, 0.85, 0.9, 0.93, 0.95, 0.97, 0.98, 0.99, 0.992, 0.994, 0.996, 0.998, 1.]
         self.val_energy_bins = [0., 2.21427965, 3.11312909, 4.44952669, 7.04064255, 10., np.inf]
         """ energy of candidate """
         self.val_seed_energy_bins = [0., 40., 120,  200, 300, np.inf]
         self.val_eta_bins = [1.5, 2.28675771, 2.5121839 , 2.68080544, 3.15]#[1.65, 2.15, 2.75]
+
+        self.saved_models_paths = defaultdict(dict)
+        """ Saved models paths : epoch -> format -> path"""
     
+    def _checkBestMetric(self, metric_name:str, current_value:float, better="min"):
+        """ TO be called for recording eventual validation metric improvements """
+        if isinstance(current_value, torch.Tensor):
+            current_value = current_value.item()
+        if (better == "min" and current_value < self.best_val_metrics_values.get(metric_name, np.inf)) or (better == "max" and current_value > self.best_val_metrics_values.get(metric_name, -np.inf)):
+            self.best_val_metrics_values[metric_name] = current_value
+            self.best_val_metrics_epochs[metric_name] = self.current_epoch
+        self.all_metrics[metric_name][self.current_epoch] = current_value
+
+        if self.trialReportMode == metric_name:
+            self.trial.report(current_value, step=self.trial_report_step)
+            self.trial_last_report = current_value
+            if self.trial_last_report < self.trial_best_report:
+                self.trial_best_report = self.trial_last_report
+            self.trial_report_step += 1
+
     def train_step(self, batch):
         """ Train for one batch """
         pred = torch.squeeze(self.model(batch["features"][0].to(self.device)), dim=1)
@@ -240,20 +273,20 @@ class Trainer:
             - val_dataset_gpu_weighted : Validation dataset that reproduces the same weighted sampling as in training, to be able to compare validation loss to training loss
                                 set to None in case there is no weighting to be done
         """
-        frequency_val = 1
         val_dataset = val_dataset_cpu
         with torch.no_grad():
             pred, loss = self.val_evaluateModel(val_dataset_gpu)
             pred = self.loss.switchPredIfNeeded(pred).cpu()
             self.val_losses_perEpoch.append(loss)
             self.writer.add_scalar("Loss/val", self.val_losses_perEpoch[-1], self.current_epoch)
+            self._checkBestMetric("Loss_val", self.val_losses_perEpoch[-1])
 
             if val_dataset_gpu_weighted is not None:
                 loss_weighted = self.loss.switchPredIfNeeded(self.val_evaluateModel(val_dataset_gpu_weighted)[1])
                 self.writer.add_scalar("Loss/val_weighted", loss_weighted, self.current_epoch)
+                self._checkBestMetric("Loss_val_weighted", loss_weighted)
 
-
-            if self.current_epoch % frequency_val != 0:
+            if self.current_epoch % self.validation_frequency != 0:
                 return
             genmatching = val_dataset_cpu["genmatching"] # we can use genmatching var even for non-binary loss
             pred_genMatched = pred[genmatching==1]
@@ -301,7 +334,7 @@ class Trainer:
                 self.writer.add_scalar(f"Val_Mu/{WP_str}", mu, self.current_epoch)
                 self.writer.add_scalar(f"Val_SigmaOverMu_approx/{WP_str}", sigma/mu, self.current_epoch)
 
-                if self.current_epoch % (frequency_val*2) == 0:
+                if self.current_epoch % (self.validation_frequency*2) == 0:
                     self.writer.add_histogram(f"Val_superclsEnergy/WP={dnn_wp}", superclsEnergy, self.current_epoch)
                     self.writer.add_histogram(f"Val_superclsEnergy_ratioOverCP/WP={dnn_wp}", superclsEnergy_ratio, self.current_epoch)
                     plt.figure()
@@ -326,19 +359,15 @@ class Trainer:
 
             # finding best WP
             best_wp = min(sigmaOverMu_sum, key=sigmaOverMu_sum.get)
+            self.all_metrics["best_wp"][self.current_epoch] = float(best_wp)
             self.writer.add_scalar(f"Validation/bestWP", best_wp, self.current_epoch)
             # resolution at the best WP
             self.writer.add_scalar(f"Val_Sigma_approx/BestWP", gaussianSigmaApprox_res[best_wp]["inclusive"], self.current_epoch)
             self.writer.add_scalar(f"Val_Mu/BestWP", mu_res[best_wp]["inclusive"], self.current_epoch)
             self.writer.add_scalar(f"Val_SigmaOverMu_approx/BestWP", sigmaOverMu_approx_res[best_wp]["inclusive"], self.current_epoch)
             self.writer.add_scalar(f"Val_SigmaOverMu_approx/BestWP_sumEnergyBins", sigmaOverMu_sum[best_wp], self.current_epoch)
-            self.trial.report(sigmaOverMu_sum[best_wp], step=self.trial_report_step)
-            self.trial_last_report = sigmaOverMu_sum[best_wp]
-            if self.trial_last_report < self.trial_best_report:
-                self.trial_best_report = self.trial_last_report
-            self.trial_report_step += 1
-            if sigmaOverMu_sum[best_wp] < self.best_val_metrics.get("SigmaOverMu-BestWP_sumEnergyBins_Best", np.inf):
-                self.best_val_metrics["SigmaOverMu-BestWP_sumEnergyBins_Best"] = sigmaOverMu_sum[best_wp]
+            self._checkBestMetric("SigmaOverMu-BestWP_sumEnergyBins", sigmaOverMu_sum[best_wp])
+
             # in energy bins
             for b_ens in range(len(self.val_seed_energy_bins)-1):
                 self.writer.add_scalar(f"Val_Sigma_approx_{self.val_seed_energy_bins[b_ens]}-{self.val_seed_energy_bins[b_ens+1]}/BestWP", gaussianSigmaApprox_res[best_wp][b_ens], self.current_epoch)
@@ -346,7 +375,7 @@ class Trainer:
                 self.writer.add_scalar(f"Val_SigmaOverMu_approx_{self.val_seed_energy_bins[b_ens]}-{self.val_seed_energy_bins[b_ens+1]}/BestWP", sigmaOverMu_approx_res[best_wp][b_ens], self.current_epoch)
 
             
-            if self.current_epoch % (frequency_val*2) == 0:
+            if self.current_epoch % (self.validation_frequency*2) == 0:
                 plt.plot(self.val_dnn_wps, [d["inclusive"] for d in sigmaOverMu_approx_res.values()])
                 # plt.semilogy()
                 plt.ylabel("SigmaOverMu")
@@ -367,7 +396,7 @@ class Trainer:
 
             self.writer.add_pr_curve("PR_curve", genmatching, pred, self.current_epoch)
 
-            if self.current_epoch % (frequency_val*3) != 0:
+            if self.current_epoch % (self.validation_frequency*3) != 0:
                 return
             
             genmatching = genmatching.cpu()
@@ -445,12 +474,14 @@ class Trainer:
         swapPrediction : for ONNX export, if True will swap the prediction output (doing 1-pred)
         set to None (default) it will swap it as needed to ensure DNN pred ~ 1 maps to good association, ~0 is bad
         """
+        
         if format == "pytorch":
             torch.save({
                 'epoch': self.current_epoch,
                 'model_state_dict': self.model.state_dict(),
                 'optimizer_state_dict': self.optimizer.state_dict(),
                 }, self.log_output / ('model_'+modelName+'.pth'))
+            self.saved_models_paths[self.current_epoch][format] = self.log_output / ('model_'+modelName+'.pth')
         elif format == "onnx":
             if swapPrediction or (swapPrediction is None and self.loss.shouldSwapPrediction):
                 class SwappingModule(nn.Module):
@@ -475,6 +506,7 @@ class Trainer:
                 opset_version=10,
                 dynamic_axes={"input" : {0:"batch_size"}, "output": {0:"batch_size"}}
             )
+            self.saved_models_paths[self.current_epoch][format] = self.log_output / ('model_'+modelName+'.onnx')
     
     def reloadModel(self, checkpointPath:str):
         checkpoint = torch.load(checkpointPath)
@@ -482,6 +514,21 @@ class Trainer:
         self.optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
         self.current_epoch = checkpoint["epoch"]
 
+    def getBestEpochForMetric(self, metric, possibleEpochs:list[int]=None):
+        """ Given a metric name, return epoch of best value, subject to constraint that epoch is in possibleEpochs
+        If possibleEpochs is None, no constraint """
+        best_metric_value = np.inf
+        best_epoch = None
+        for epoch, metric_value in self.all_metrics[metric].items():
+            if possibleEpochs is not None and epoch not in possibleEpochs:
+                continue
+            if metric_value < best_metric_value:
+                best_metric_value = metric_value
+                best_epoch = epoch
+        if best_epoch is None:
+            raise ValueError(f"Could not find any value for metric {metric}, available metrics are {self.all_metrics.keys()}")
+        else:
+            return best_epoch
     
     def full_train(self, train_dataset, val_dataset, nepochs=10):
         batch_size = self.trial.suggest_int("batchSize", 64, 16384, log=True)
@@ -545,37 +592,49 @@ class Trainer:
                 self.current_epoch += 1
                 if self.profiler: self.profiler.step()
                 self.train_loop(train_dataloader)
-                self.writer.add_scalar("Loss/train", self.train_losses_perEpoch[-1], epoch)
+                self.writer.add_scalar("Loss/train", self.train_losses_perEpoch[-1], self.current_epoch)
 
                 self.val_loop(val_dataset_gpu=val_dataset_gpu, val_dataset_cpu=val_dataset_cpu, val_dataset_gpu_weighted=val_dataset_gpu_weighted)
                 pbar.set_description(f"train_loss = {self.train_losses_perEpoch[-1]}, val_loss = {self.val_losses_perEpoch[-1]}")
 
                 self.scheduler.step(self.val_losses_perEpoch[-1])
-                self.writer.add_scalar("Training/learning_rate", self.scheduler.get_last_lr()[0], epoch)
-                scheduler_ended = True
-                for i, param_group in enumerate(self.optimizer.param_groups):
-                    old_lr = float(param_group['lr'])
-                    new_lr = max(old_lr * self.scheduler.factor, self.scheduler.min_lrs[i])
-                    if old_lr - new_lr > self.scheduler.eps:
-                        scheduler_ended = False
-                if scheduler_ended and self.scheduler.num_bad_epochs > 20: # early stopping when no val loss improvement and already at end of LR scheduler
-                    return self.trial_best_report
+                self.writer.add_scalar("Training/learning_rate", self.scheduler.get_last_lr()[0], self.current_epoch)
+                # scheduler_ended = True
+                # for i, param_group in enumerate(self.optimizer.param_groups):
+                #     old_lr = float(param_group['lr'])
+                #     new_lr = max(old_lr * self.scheduler.factor, self.scheduler.min_lrs[i])
+                #     if old_lr - new_lr > self.scheduler.eps:
+                #         scheduler_ended = False
+                
+                # if scheduler_ended and self.scheduler.num_bad_epochs > 20: # early stopping when no val loss improvement and already at end of LR scheduler
+                #     return self.trial_best_report
+                if self.current_epoch - self.best_val_metrics_epochs["Loss_val"] > 30:
+                    print("Training stopped due to validation loss not improving")
+                    return self.trial_best_report # early stopping after no val loss improvement after 30 epochs
+                self.writer.add_scalar("Training/num_bad_epochs_valLoss", self.current_epoch - self.best_val_metrics_epochs["Loss_val"], self.current_epoch)
+                self.writer.add_scalar("Training/num_bad_epochs_scheduler", self.scheduler.num_bad_epochs, self.current_epoch)
 
-                if epoch % 5 == 0:
-                    self.saveModel(f"epoch{epoch}")
-                if epoch % 10 == 0:
-                    self.saveModel(f"epoch{epoch}", format="onnx")
+                if self.current_epoch % self.validation_frequency == 0:
+                    self.saveModel(f"epoch{self.current_epoch}")
+                    self.saveModel(f"epoch{self.current_epoch}", format="onnx")
+                
+                self.trial.set_user_attr("nEpochs", self.current_epoch)
+                self.trial.set_user_attr("all_metrics", self.all_metrics)
+                self.trial.set_user_attr("best_val_metrics_values", self.best_val_metrics_values)
+                self.trial.set_user_attr("best_val_metrics_epochs", self.best_val_metrics_epochs)
+                # we need to have JSON-serializable stuff in trial user_attr so change pathlib.Path to str
+                self.trial.set_user_attr("saved_models_paths", {epoch : {format : str(path) for format, path in inner_dict.items()} for epoch, inner_dict in self.saved_models_paths.items()})
                 
                 if self.trial.should_prune():
                     raise optuna.TrialPruned()
         finally:
             if self.profiler: self.profiler.stop()
             try:
-                self.writer.add_hparams(self.trial.params, {"SigmaOverMu-sum-Best" : self.best_val_metrics["SigmaOverMu-BestWP_sumEnergyBins_Best"]})
+                self.writer.add_hparams(self.trial.params, {"SigmaOverMu-sum-Best" : self.best_val_metrics_values["SigmaOverMu-BestWP_sumEnergyBins"]})
             except KeyError: pass
             self.writer.close()
-            self.saveModel(f"lastEpoch_{epoch}")
-            self.saveModel(f"lastEpoch_{epoch}", format="onnx")
+            self.saveModel(f"lastEpoch_{self.current_epoch}")
+            self.saveModel(f"lastEpoch_{self.current_epoch}", format="onnx")
 
         return self.trial_last_report
 
