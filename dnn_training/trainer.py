@@ -1,3 +1,6 @@
+""" Training code for superclustering DNN 
+Uses optuna for hyperparameter tuning (but not mandatory to do it, can just be used by specifying a dict with all parameters)
+"""
 import torch
 from torch import nn
 from torch.utils.data import Dataset, DataLoader, WeightedRandomSampler
@@ -31,10 +34,12 @@ featureNames = ['DeltaEtaBaryc', 'DeltaPhiBaryc', 'multi_en', 'multi_eta', 'mult
 featureCount = 17
 
 class FeatureScaler(nn.Module):
-    """ Scales the input features to [0, 1]. Values are taken from Alessandro's notebook. They are not trainable parameters. """
+    """ Scales the input features to [0, 1]. Values are taken from Alessandro's notebook. They are not trainable parameters.
+     They should be checked ! """
     def __init__(self) -> None:
         super().__init__()
         # Alessandro v2
+        # register_buffer stores the values in the module but not as learnable parameter
         self.register_buffer("scaler_scale", torch.tensor([5.009924761018587,
             1.0018188597242355,
             0.010292174692060528,
@@ -96,9 +101,11 @@ def makeModelOptuna(trial:Trial):
     return makeModel(trial.suggest_float("dropout", 0., 0.3))
 
 class BaseLoss:
+    """ Base class for a loss """
     trainingLossType:str = None
     shouldSwapPrediction:bool = False
     """ If True, network output is closeTo1 = bad, closeTo0 = good (aka weird TICL assoc score). If False, network output is closeTo1 = good"""
+
     def compute_loss_train(self, pred:torch.Tensor, train_batch:dict[str, tuple[torch.Tensor]]) -> torch.Tensor:
         """ Computes loss for a training batch
         pred is the tensor of predictions from the DNN
@@ -165,6 +172,10 @@ class Trainer:
     def __init__(self, model:nn.Module, loss:BaseLoss, trial:Trial, log_output=None, run_name=None, device="cpu", profiler=None, trialReportMode:str|None=None):
         """ 
         Parameters : 
+         - trial : the Optuna trial object, can be just FixedTrial({batch_size:..., ...}) in case no hyperparameter tuning
+         - log_output : directory for all logs & saved models etc
+         - run_name : name of the run, to use as folder for logs, by default uses data/time
+         - device : passed to pytorch, "cpu" or "cuda:0"
          - profiler : can be used with pytorch profiler
          - trialReportMode : can be None (nothing is reported to Optuna), a metric name : reports the metric at every validation
         """
@@ -270,6 +281,8 @@ class Trainer:
     def val_loop(self, val_dataset_gpu:dict[str, torch.Tensor], val_dataset_cpu:dict[str, torch.Tensor], val_dataset_gpu_weighted:dict[str, torch.Tensor]|None=None):
         """ Run validation for the current epoch
         Parameters : 
+            - val_dataset_gpu : the validation dataset that has to be located on GPU
+            - val_dataset_cpu : same but located on CPU
             - val_dataset_gpu_weighted : Validation dataset that reproduces the same weighted sampling as in training, to be able to compare validation loss to training loss
                                 set to None in case there is no weighting to be done
         """
@@ -357,7 +370,7 @@ class Trainer:
                     sigmaOverMu_sum[dnn_wp] += sigma/mu
                 self.writer.add_scalar(f"Val_SigmaOverMu_approx/{WP_str}_sumEnergyBins", sigmaOverMu_sum[dnn_wp], self.current_epoch)
 
-            # finding best WP
+            # finding best WP by scanning energy resolution
             best_wp = min(sigmaOverMu_sum, key=sigmaOverMu_sum.get)
             self.all_metrics["best_wp"][self.current_epoch] = float(best_wp)
             self.writer.add_scalar(f"Validation/bestWP", best_wp, self.current_epoch)
@@ -531,6 +544,7 @@ class Trainer:
             return best_epoch
     
     def full_train(self, train_dataset, val_dataset, nepochs=10):
+        """ Complete training routine with training/validation loop """
         batch_size = self.trial.suggest_int("batchSize", 64, 16384, log=True)
         weightSamples = self.trial.suggest_categorical("weightSamples", [True, False])
 

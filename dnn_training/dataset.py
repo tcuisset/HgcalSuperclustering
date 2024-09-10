@@ -1,3 +1,4 @@
+""" Perparing training samples, starting from output of SuperclusteringSampleDumper in CMSSW and making Pytorch tensors """
 import uproot
 import awkward as ak
 import numpy as np
@@ -23,10 +24,12 @@ def removeBadSeeds(data_ak:ak.Array, seed_assocScore_threshold=0.2) -> ak.Array:
     data_ak = data_ak[data_ak.seedTracksterBestAssociationScore < seed_assocScore_threshold]
     return data_ak[ak.num(data_ak, axis=1) > 0] # remove events that have no pairs left
 
-# candidate assoc score was picked to maximize resolution of superclusters built assuming "perfect" superclustering
-# seed threshold is kind of arbitrary, designed to train the network not to supercluster when fed with random input
-# we should probably consider 
 def makeTargetBinary(data_ak:ak.Array, seed_assocScore_threshold=0.1, candidate_assocScore_threshold=0.15): 
+    """ Computes binary classification variables : 1=should supercluster, 0=should not supercluster
+    based on recoToSim association score
+    candidate assoc score was picked to maximize resolution of superclusters built assuming "perfect" superclustering
+    seed threshold is kind of arbitrary, designed to train the network not to supercluster when fed with random input
+    """
     genMatching = (
      (data_ak.candidateTracksterBestAssociation_simTsIdx == data_ak.seedTracksterBestAssociation_simTsIdx) &
      (data_ak.seedTracksterBestAssociationScore < seed_assocScore_threshold) & 

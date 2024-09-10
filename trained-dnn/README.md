@@ -3,7 +3,7 @@
 To make CMSSW find the models :
 
 ~~~bash
-cd $CMSSW_BASE/external/$SCRAM_ARCH
+cd $LOCALRT/external/$SCRAM_ARCH
 mkdir -p data/RecoHGCal/TICL/data
 cd data/RecoHGCal/TICL/data
 ln -s ../../../../../../../trained-dnn/current/ tf_models
